@@ -27,10 +27,10 @@ export default class MeshSceneNode extends SceneNode {
 			return;
 		}
 		
+		super.render();
+		
 		// Transformations
-		this._renderer.worldMatrix.setScale(this._scale);
-		this._renderer.worldMatrix.setRotation(this._rotation);
-		this._renderer.worldMatrix.setTranslation(this._position);
+		this._renderer.worldMatrix.set(this._absoluteTransform);
 		
 		// Draw buffers
 		for (let i=0; i < this._mesh.vertexBuffers.length; i++) {

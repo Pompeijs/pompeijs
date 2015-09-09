@@ -40,6 +40,18 @@ export default class Matrix {
     
     return this;
   }
+  
+  makeIdentity() {
+    let m = this.m;
+    
+    for (let i=0; i < 16; i++) {
+      m[i] = 0;
+    }
+    
+    m[0] = m[5] = m[10] = m[15] = 1.0;
+    
+    return this;
+  }
 
   multiply(other) {
     // Simplify the reading by creating temporary variables

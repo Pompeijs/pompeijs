@@ -8,15 +8,27 @@ export default class Color {
     this.a = 0.0;
 
     if (other) {
-      if (!(other instanceof Color)) {
-          throw new PompeiError('Bad parameter. other must be a Color. constructor (other)');
-      }
-      this.fromColor(other);
+      this.set(other);
     }
   }
 
   toArray () {
     return [this.r, this.g, this.b, this.a];
+  }
+  
+  set (other) {
+    if (other instanceof Color) {
+      this.r = other.r;
+      this.g = other.g;
+      this.b = other.b;
+      this.a = other.a;
+    }
+    else if (other instanceof Array) {
+      this.r = other[0];
+      this.g = other[1];
+      this.b = other[2];
+      this.a = other[3];
+    }
   }
 
   fromArray (other) {
@@ -24,13 +36,6 @@ export default class Color {
     this.g = other[1];
     this.b = other[2];
     this.a = other[3];
-  }
-
-  fromColor (other) {
-    this.r = other.r;
-    this.g = other.g;
-    this.b = other.b;
-    this.a = other.a;
   }
 
   plus (other) {

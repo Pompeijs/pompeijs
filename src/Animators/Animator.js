@@ -6,12 +6,12 @@ export default class Animator {
    * @constructor
    * @param {object} object
    */
-  constructor (object) {
+  constructor (scene, object) {
     this._object = object;
   }
 
   // To be overrided
-  onAnimate () { }
+  onAnimate (timeMS) { }
 
   // To be overidded
   onFinished () { }

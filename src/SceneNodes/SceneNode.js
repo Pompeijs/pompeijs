@@ -31,12 +31,25 @@ export default class SceneNode {
 		this._rotation = new Vector3();
 		this._scale = new Vector3([1, 1, 1]);
 		
+		this._absoluteTransform = Matrix.Identity();
+		
 		// Animators
 		this._animators = [];
+		
+		// Temp values
+		this._tempWorldTransform = Matrix.Identity();
+		this._tempRelativeTransform = Matrix.Identity();
+		this._tempRelativeTransformScale = Matrix.Identity();
 	}
 	
 	// To be overrided
-	render () { }
+	render () {
+		this.updateAbsoluteTransformation();
+		
+		for (let i=0; i < this._animators.length; i++) {
+			
+		}
+	}
 	
 	addChild (child) {
 		if (child && child != this) {
@@ -61,6 +74,22 @@ export default class SceneNode {
 		if (this._parent) {
 			this._parent.removeChild(this);
 		}
+	}
+	
+	updateAbsoluteTransformation () {
+		this._absoluteTransform.makeIdentity();
+		
+		if (this._parent) {
+			this._absoluteTransform.set(this._parent.absoluteTransformation)
+				.multiply(this.relativeTransformation)
+		}
+		else {
+			this._absoluteTransform.set(this.relativeTransformation);
+		}
+	}
+	
+	get absoluteTransformation () {
+		return this._absoluteTransform;
 	}
 	
 	get parent () {
@@ -118,13 +147,24 @@ export default class SceneNode {
 	
 	// Transformations
 	get worldMatrix () {
-		var world = new Matrix();
+		this._tempWorldTransform.setScale(this._scale);
+		this._tempWorldTransform.setRotationDegrees(this._rotation);
+		this._tempWorldTransform.setTranslation(this._position);
 		
-		world.setScale(this._scale);
-		world.setRotationDegrees(this._rotation);
-		world.setTranslation(this._position);
+		return this._tempWorldTransform;
+	}
+	
+	get relativeTransformation () {
+		this._tempRelativeTransform.setRotationDegrees(this._rotation);
+		this._tempRelativeTransform.setTranslation(this._position);
 		
-		return world;
+		if (this._scale.x !== 1.0 || this._scale.y !== 1.0 || this._scale.z !== 1.0) {
+			this._tempRelativeTransformScale.makeIdentity();
+			this._tempRelativeTransformScale.setScale(this._scale);
+			this._tempRelativeTransform.multiply(this._tempRelativeTransformScale);
+		}
+		
+		return this._tempRelativeTransform;
 	}
 	
 	set worldMatrix (worldMatrix) {

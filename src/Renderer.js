@@ -38,8 +38,11 @@ export default class Renderer {
       false
     );
     this._defaultMaterial.compile();
-    
     this._currentMaterial = null;
+    
+    this._fps = 0;
+    this._potentialFps = 0;
+    this._currentTime = 0;
   }
 
   resize(size) {
@@ -48,6 +51,8 @@ export default class Renderer {
   }
 
   begin(clearColor, clearDepthBuffer, clearBackBuffer) {
+    this._currentTime = performance.now();
+    
     let canvas = this._gl.canvas;
     this._viewPort.x = canvas.clientWidth;
     this._viewPort.y = canvas.clientHeight;
@@ -58,24 +63,28 @@ export default class Renderer {
       canvas.height = this._viewPort.y;
     }
     
-    this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
-    
-    /*
     this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     
     if (clearDepthBuffer) {
-      this._gl.clearDepth(1.0);
       this._gl.clear(this._gl.DEPTH_BUFFER_BIT);
     }
 
     if (clearBackBuffer) {
       this._gl.clear(this._gl.COLOR_BUFFER_BIT);
     }
-    */
   }
 
-  end() {
+  end () {
     // Measure fps here
+    let currentTime = performance.now();
+    let timeForFrame = currentTime - this._currentTime;
+    
+    this._potentialFps = ((1000.0 / 60.0) / timeForFrame) * 60.0;
+    this._currentMaterial = currentTime;
+  }
+  
+  fps () {
+    return this._potentialFps;
   }
 
   drawBuffer (vertexBuffer) {
@@ -148,8 +157,8 @@ export default class Renderer {
     }
     
     // Clean vertex and pixel shaders
-    //this._gl.deleteShader(vertex);
-    //this._gl.deleteShader(pixel);
+    this._gl.deleteShader(vertex);
+    this._gl.deleteShader(pixel);
     
     // Configure
     this._gl.useProgram(program);
