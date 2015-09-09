@@ -11,6 +11,10 @@ import VertexBuffer from './Core/VertexBuffer';
 
 import Mesh from './Mesh/Mesh';
 
+import Animator from './Animators/Animator';
+import RotationAnimator from './Animators/RotationAnimator';
+import RotationCameraAnimator from './Animators/RotationCameraAnimator';
+
 import CameraSceneNode from './SceneNodes/CameraSceneNode';
 import SceneNode from './SceneNodes/SceneNode';
 import MeshSceneNode from './SceneNodes/MeshSceneNode';
@@ -31,6 +35,10 @@ export default {
   VertexBuffer,
 
   Mesh,
+  
+  Animator,
+  RotationAnimator,
+  RotationCameraAnimator,
 
   CameraSceneNode,
   SceneNode,

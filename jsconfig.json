@@ -27,6 +27,8 @@
 		"src/SceneNodes/CameraSceneNode.js",
 		
 		"src/Animators/Animator.js",
+		"src/Animators/RotationAnimator.js",
+		"src/Animators/RotationCameraAnimator.js",
 		
 		"src/Material/Material.js"
 	]

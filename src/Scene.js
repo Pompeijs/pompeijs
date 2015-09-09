@@ -12,7 +12,7 @@ export default class Scene {
     this.activeCamera = null;
 
     this._renderer = renderer;
-
+    
     this._rootSceneNode = new SceneNode("root", this);
     this._rootSceneNode.parent = null;
   }
@@ -23,6 +23,10 @@ export default class Scene {
   
   get rootSceneNode () {
     return this._rootSceneNode;
+  }
+  
+  now () {
+    return this._renderer.now();
   }
 
   drawAll () {

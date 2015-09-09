@@ -46,8 +46,10 @@ export default class SceneNode {
 	render () {
 		this.updateAbsoluteTransformation();
 		
+		const now = this._scene.now();
+		
 		for (let i=0; i < this._animators.length; i++) {
-			
+			this._animators[i].onAnimate(now);
 		}
 	}
 	

@@ -53,7 +53,7 @@ export default class Renderer {
   begin(clearColor, clearDepthBuffer, clearBackBuffer) {
     this._currentTime = performance.now();
     
-    let canvas = this._gl.canvas;
+    let canvas = this.canvas;
     this._viewPort.x = canvas.clientWidth;
     this._viewPort.y = canvas.clientHeight;
     
@@ -76,15 +76,23 @@ export default class Renderer {
 
   end () {
     // Measure fps here
-    let currentTime = performance.now();
+    let currentTime = this.now();
     let timeForFrame = currentTime - this._currentTime;
     
     this._potentialFps = ((1000.0 / 60.0) / timeForFrame) * 60.0;
     this._currentMaterial = currentTime;
   }
   
+  now () {
+    return performance.now();
+  }
+  
   fps () {
     return this._potentialFps;
+  }
+  
+  get canvas () {
+    return this._gl.canvas;
   }
 
   drawBuffer (vertexBuffer) {

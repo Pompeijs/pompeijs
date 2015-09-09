@@ -1,6 +1,13 @@
 import Core from './Core';
 
 export class Vector3 {
+  static get Zero () {
+    // UGLY WAY TO GO FAST
+    // Works as a static member for Vector3 that is a Zero Vector (x=0, y=0, z=0)
+    this._zeroVector = this._zeroVector || new Vector3([0, 0, 0]);
+    return this._zeroVector;
+  }
+  
   constructor (other) {
     this.x = 0.0;
     this.y = 0.0;
@@ -27,6 +34,10 @@ export class Vector3 {
     }
     
     return this;
+  }
+  
+  clone () {
+    return new Vector3([this.x, this.y, this.z]);
   }
 
   plus (other) {
@@ -145,6 +156,36 @@ export class Vector3 {
   equals (other) {
     return this.x === other.x && this.y === other.y && this.z === other.z;
   }
+  
+  rotateXYBy (degrees, center) {
+    center = center || Vector3.Zero;
+    
+    degrees *= Core.DegToRad();
+    let cs = Math.cos(degrees);
+    let sn = Math.sin(degrees);
+    this.x -= center.x;
+    this.y -= center.y;
+    this.set([(this.x*cs - this.y*sn), (this.x*sn + this.y*cs), this.z]);
+    this.x += center.x;
+    this.y += center.y;
+    
+    return this;
+  }
+  
+  rotateXZBy (degrees, center) {
+    center = center || Vector3.Zero;
+    
+    degrees *= Core.DegToRad();
+    let cs = Math.cos(degrees);
+    let sn = Math.sin(degrees);
+    this.x -= center.x;
+    this.z -= center.z;
+    this.set([(this.x*cs - this.z*sn), this.y, (this.x*sn + this.z*cs)]);
+    this.x += center.x;
+    this.z += center.z;
+    
+    return this;
+  }
 }
 
 export class Vector2 {
@@ -162,7 +203,7 @@ export class Vector2 {
   }
 
   set (other) {
-    if (other instanceof Vector3) {
+    if (other instanceof Vector2) {
       this.x = other.x;
       this.y = other.y;
     } else if (other instanceof Array) {

@@ -33,6 +33,8 @@ export default class CameraSceneNode extends SceneNode {
   }
   
   render () {
+    super.render();
+    
     let tgtv = this._tempTarget.set(this._target)
     .minus(this._position)
     .normalize();
