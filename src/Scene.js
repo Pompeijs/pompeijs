@@ -8,12 +8,13 @@ export default class Scene {
       throw new PompeiError('Bad parameters for Scene(renderer, [options])');
     }
     options = options || {};
+    
+    this.activeCamera = null;
 
     this._renderer = renderer;
 
     this._rootSceneNode = new SceneNode("root", this);
     this._rootSceneNode.parent = null;
-    
   }
   
   get renderer () {

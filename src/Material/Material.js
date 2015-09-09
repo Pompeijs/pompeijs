@@ -7,8 +7,8 @@ import vertexShader from '../Shaders/Solid.vertex.glsl';
 import pixelShader from '../Shaders/Solid.fragment.glsl';
 
 const defaults = {
-  vertexPath: './Shaders/Solid.vertex.glsl',
-  pixelPath: './Shaders/Solid.fragment.glsl'
+  vertexPath: 'Shaders/Solid.vertex.glsl',
+  pixelPath: 'Shaders/Solid.fragment.glsl'
 };
 
 export default class Material {
@@ -71,6 +71,7 @@ export default class Material {
   compile () {
     let vertex;
     let pixel;
+    
     if (this._fromDOM) {
       vertex = document.getElementById(this._vertexPath).innerText;
       pixel = document.getElementById(this._pixelPath).innerText;      
@@ -96,18 +97,22 @@ export default class Material {
       );
     }
 
-    this.createProgram(vertex, pixel);
+    this._createProgram(vertex, pixel);
   }
   
+  // Can be overrided
   onSetConstants (renderer) {
-    var worldViewProjection = new Matrix();
+    let worldViewProjection = Matrix.Identity();
     worldViewProjection
       .multiply(renderer.projectionMatrix)
       .multiply(renderer.viewMatrix)
       .multiply(renderer.worldMatrix);
 
-    renderer.setMatrix(worldViewProjection);
+    renderer.setMatrix('u_worldViewProjection', worldViewProjection);
   }
+  
+  // To be overrided
+  onSetMaterial (material) { }
   
   _createProgram (vertexCode, pixelCode) {
     let defines = '';
@@ -120,7 +125,4 @@ export default class Material {
     );
     this._programReady = true;
   }
-  
-  // To be replaced
-  onSetMaterial () { }
 }

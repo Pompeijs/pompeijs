@@ -1,11 +1,18 @@
 import { PompeiError } from './utils/errors';
-import Matrix from './Core/Matrix.js';
+
+import { Vector2 } from './Core/Vector';
+import Matrix from './Core/Matrix';
+
 import VertexBuffer from './Core/VertexBuffer';
 import Material from './Material/Material';
 
 export default class Renderer {
   constructor(context, options) {
     this._gl = context;
+    this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this._gl.clearDepth(1.0);
+    this._gl.enable(this._gl.DEPTH_TEST);
+    this._gl.depthFunc(this._gl.LEQUAL);
 
     options = options || {};
 
@@ -17,13 +24,16 @@ export default class Renderer {
     this._viewMatrix = Matrix.Identity();
     this._projectionMatrix = Matrix.Identity();
     
+    // Viewport
+    this._viewPort = new Vector2([0, 0]);
+    
     // Rendering
     this._defaultMaterial = new Material(
       this,
       'Shaders/Solid.vertex.glsl',
       'Shaders/Solid.fragment.glsl',
-      ["a_position", "a_normal", "a_uv"],
-      ["worldViewProjection"],
+      ["a_position"],
+      ["u_worldViewProjection"],
       [],
       false
     );
@@ -32,13 +42,27 @@ export default class Renderer {
     this._currentMaterial = null;
   }
 
-  onResize(width, height) {
-    this._gl.viewPort(0, 0, width, height);
+  resize(size) {
+    let ratio = window.devicePixelRatio || 1.0;
+    this._gl.viewport(0, 0, size.x * ratio, size.y * ratio);
   }
 
   begin(clearColor, clearDepthBuffer, clearBackBuffer) {
+    let canvas = this._gl.canvas;
+    this._viewPort.x = canvas.clientWidth;
+    this._viewPort.y = canvas.clientHeight;
+    
+    if (this._viewPort.x != canvas.width || this._viewPort.y != canvas.height) {
+      this.resize(this._viewPort);
+      canvas.width = this._viewPort.x;
+      canvas.height = this._viewPort.y;
+    }
+    
+    this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
+    
+    /*
     this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-
+    
     if (clearDepthBuffer) {
       this._gl.clearDepth(1.0);
       this._gl.clear(this._gl.DEPTH_BUFFER_BIT);
@@ -47,6 +71,7 @@ export default class Renderer {
     if (clearBackBuffer) {
       this._gl.clear(this._gl.COLOR_BUFFER_BIT);
     }
+    */
   }
 
   end() {
@@ -65,7 +90,7 @@ export default class Renderer {
           let stride = vertexBuffer[this._currentMaterial.attributes[i] + "_stride"];
           
           this._gl.bindBuffer(this._gl.ARRAY_BUFFER, vertexBuffer[this._currentMaterial.attributes[i]]);
-          this._gl.vertexAttribPointer(location, stride, this._gl.FLOAT, false, stride * 4, 0);
+          this._gl.vertexAttribPointer(location, stride, this._gl.FLOAT, false, 0, 0);
         }
       }
       catch(e) {
@@ -76,8 +101,11 @@ export default class Renderer {
     // Bind indices
     this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, vertexBuffer.indexBuffer);
     
+    // Set constants
+    this._currentMaterial.onSetConstants(this);
+    
     // Draw
-    let is32Bits = vertexBuffer.indexIs32Bits;
+    let is32Bits = vertexBuffer.isIndex32Bits;
     this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);    
   }
   
@@ -89,6 +117,7 @@ export default class Renderer {
       this._currentMaterial = material;
     }
     
+    // Use program
     this._gl.useProgram(this._currentMaterial.program);
   }
   
@@ -118,8 +147,21 @@ export default class Renderer {
       throw new PompeiError('Cannot link vertex and pixel programs: ' + this._gl.getProgramInfoLog(program));
     }
     
-    this._gl.deleteShader(vertex);
-    this._gl.deleteShader(pixel);
+    // Clean vertex and pixel shaders
+    //this._gl.deleteShader(vertex);
+    //this._gl.deleteShader(pixel);
+    
+    // Configure
+    this._gl.useProgram(program);
+    
+    for (let i=0; i < attributes.length; i++) {
+      let location = this._gl.getAttribLocation(program, attributes[i]);
+      if (location < 0) {
+        continue;
+      }
+      
+      this._gl.enableVertexAttribArray(location);
+    }
     
     return program;
   }
@@ -134,7 +176,6 @@ export default class Renderer {
       
       this._gl.bindBuffer(type, vbo);
       this._gl.bufferData(type, new Float32Array(buffer), this._gl.STATIC_DRAW);
-      this._gl.bindBuffer(type, null);
       
       return vbo;
     };
@@ -164,8 +205,7 @@ export default class Renderer {
     
     this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, vbo);
     this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, is32Bits ? new Uint32Array(indices) : new Uint16Array(indices), this._gl.STATIC_DRAW);
-    this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
-
+    
     vertexBuffer._indexBuffer = vbo;
     vertexBuffer.indexIs32Bits = is32Bits;
   }
@@ -175,6 +215,16 @@ export default class Renderer {
     this._gl.deleteBuffer(vertexBuffer._indexBuffer);
     this._gl.deleteBuffer(vertexBuffer._normalBuffer);
     this._gl.deleteBuffer(vertexBuffer._uvBuffer);
+  }
+  
+  // Materials
+  setMatrix (uniform, matrix) {
+    let location = this._gl.getUniformLocation(this._currentMaterial.program, uniform);
+    if (!location) {
+      return; // Warning message ?
+    }
+    
+    this._gl.uniformMatrix4fv(location, false, matrix.m);
   }
   
   // Programs

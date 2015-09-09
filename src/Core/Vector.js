@@ -1,3 +1,5 @@
+import Core from './Core';
+
 export class Vector3 {
   constructor (other) {
     this.x = 0.0;
@@ -23,6 +25,8 @@ export class Vector3 {
       this.y = other[1];
       this.z = other[2];
     }
+    
+    return this;
   }
 
   plus (other) {
@@ -70,11 +74,11 @@ export class Vector3 {
   }
 
   cross (other) {
-    this.x = this.y * other.z - this.z * other.y;
-    this.y = this.z * other.x - this.x * other.z;
-    this.z = this.x * other.y - this.y * other.x;
+    let x = this.y * other.z - this.z * other.y;
+    let y = this.z * other.x - this.x * other.z;
+    let z = this.x * other.y - this.y * other.x;
 
-    return this;
+    return new Vector3([x, y, z]);
   }
 
   length () {
@@ -99,6 +103,28 @@ export class Vector3 {
     const z = this.z - other.z;
 
     return x * x + y * y + z * z;
+  }
+  
+  getHorizontalAngle () {
+    let angle = new Vector3();
+
+    let tmp = (Math.atan2(this.x, this.z) * Core.RadToDeg());
+    angle.y = tmp;
+
+    if (angle.y < 0.0)
+      angle.y += 360.0;
+    if (angle.y >= 360.0)
+      angle.y -= 360.0;
+
+    let z1 = Math.sqrt(this.x * this.x + this.z * this.z);
+    angle.x = (Math.atan2(z1, this.y) * Core.RadToDeg() - 90.0);
+
+    if (angle.x < 0.0)
+      angle.x += 360.0;
+    if (angle.x >= 360.0)
+      angle.x -= 360.0;
+
+    return angle;
   }
 
   normalize () {

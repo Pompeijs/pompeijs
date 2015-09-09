@@ -11,6 +11,7 @@ import VertexBuffer from './Core/VertexBuffer';
 
 import Mesh from './Mesh/Mesh';
 
+import CameraSceneNode from './SceneNodes/CameraSceneNode';
 import SceneNode from './SceneNodes/SceneNode';
 import MeshSceneNode from './SceneNodes/MeshSceneNode';
 
@@ -31,6 +32,7 @@ export default {
 
   Mesh,
 
+  CameraSceneNode,
   SceneNode,
   MeshSceneNode,
 

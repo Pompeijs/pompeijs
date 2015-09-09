@@ -1,6 +1,6 @@
 import { PompeiError } from '../utils/errors';
 import SceneNode from './SceneNode';
-import Vector3 from '../Core/Vector';
+import { Vector3 } from '../Core/Vector';
 import Mesh from '../Mesh/Mesh.js';
 
 export default class MeshSceneNode extends SceneNode {

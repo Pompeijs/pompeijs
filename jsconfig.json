@@ -5,12 +5,11 @@
 	},
 	"files": [
 		"index.js",
+		"src/index.js",
 		
 		"src/utils/errors.js",
 		
 		"src/Device.js",
-		"src/index.js",
-		"src/Mesh/Mesh.js",
 		"src/Renderer.js",
 		"src/Scene.js",
 
@@ -20,12 +19,15 @@
 		"src/Core/Vertex.js",
 		"src/Core/VertexBuffer.js",
 		"src/Core/Core.js",
+		
+		"src/Mesh/Mesh.js",
+		
 		"src/SceneNodes/SceneNode.js",
 		"src/SceneNodes/MeshSceneNode.js",
+		"src/SceneNodes/CameraSceneNode.js",
 		
 		"src/Animators/Animator.js",
 		
 		"src/Material/Material.js"
-		"src/SceneNodes/MeshSceneNode.js"
 	]
 }

@@ -1,6 +1,8 @@
 import Renderer from './Renderer';
 import Scene from './Scene';
 
+import { Vector2 } from './Core/Vector';
+
 import { PompeiError, WebGLSupportError } from './utils/errors';
 
 export default class Device {
@@ -15,7 +17,8 @@ export default class Device {
     }
     
     this._options = options || {};
-
+    this._canvas = canvas;
+    
     this._renderer = new Renderer(context, options);
     this._scene = new Scene(this.renderer, options);
   }
