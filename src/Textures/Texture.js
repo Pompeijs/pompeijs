@@ -6,10 +6,15 @@ export default class Texture {
     this._url = url;
     this._texture = texture;
     this._image = image;
+    this._isCanvas = image instanceof HTMLCanvasElement;
   }
   
   clone (onCloned) {
     return this._renderer.createTexture(this._url, onCloned, true);
+  }
+  
+  get isCanvas () {
+    return this._isCanvas;
   }
   
   get renderer () {
@@ -25,6 +30,10 @@ export default class Texture {
   }
   
   get image () {
+    return this._image;
+  }
+  
+  get canvas () {
     return this._image;
   }
 }

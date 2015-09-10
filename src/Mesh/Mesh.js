@@ -4,7 +4,7 @@ import VertexBuffer from '../Core/VertexBuffer';
 export default class Mesh {
   /**
    * @constructor
-   * @param {object} geometry.
+   * @param {Array<VertexBuffer>} vertexBuffers.
    * @param {object} options
    */
   constructor(vertexBuffers, scene) {

@@ -21,8 +21,8 @@ export default class RotationCameraAnimator extends Animator {
     }
     
     this.rotateSpeed = -1.0;
-    this.translateSpeed = 1.0;
-    this.zoomSpeed = 200.0;
+    this.translateSpeed = 0.1;
+    this.zoomSpeed = 1.0;
     
     this._camera = camera;
     
@@ -69,8 +69,14 @@ export default class RotationCameraAnimator extends Animator {
   
   onMouseUp () {
     return (event) => {
-      this._mouseTranslate = !(event.button === 2);
-      this._mouseRotate = !(event.button === 0);
+      let button = event.button;
+      
+      if (button === 2) {
+        this._mouseTranslate = false;
+      }
+      else if (button === 0) {
+        this._mouseRotate = false;
+      }
     };
   }
   
@@ -100,7 +106,7 @@ export default class RotationCameraAnimator extends Animator {
     
     // Zoom
     const old = this._currentZoom;
-		this._currentZoom = this._currentZoom + this._currentMouseWheel * this.zoomSpeed;
+		this._currentZoom = this._currentZoom + (-this._currentMouseWheel) * this.zoomSpeed;
     this._currentMouseWheel = 0;
 		nZoom = this._currentZoom;
 
@@ -118,10 +124,37 @@ export default class RotationCameraAnimator extends Animator {
     this._tempPositionTargetX.cross(this._tempUpVector);
     this._tempPositionTargetX.normalize();
     
+    this._tempPositionTargetY.set([0, 0, 0]);
     this._tempPositionTargetY.cross(this._tempUpVector.y > 0
       ? this._tempPositionTarget.set(this._tempPosition).minus(this._tempPositionTarget)
       : this._tempPositionTarget.set(this._tempTarget).minus(this._tempPosition));
     this._tempPositionTargetY.normalize();
+    
+    if (this._mouseTranslate) {
+      if (!this._translating) {
+        this._translateStart.set(this._mousePosition);
+        this._translating = true;
+      }
+      else {
+        this._tempTranslate.plus(this._tempPositionTargetX)
+          .multiplyScalar(this._translateStart.x - this._mousePosition.x)
+          .multiplyScalar(this.translateSpeed)
+          .plus(this._tempPositionTargetY)
+          .multiplyScalar(this._translateStart.y - this._mousePosition.y)
+          .multiplyScalar(this.translateSpeed);
+      }
+    }
+    else if (this._translating) {
+      this._tempTranslate.plus(this._tempPositionTargetX)
+          .multiplyScalar(this._translateStart.x - this._mousePosition.x)
+          .multiplyScalar(this.translateSpeed)
+          .plus(this._tempPositionTargetY)
+          .multiplyScalar(this._translateStart.y - this._mousePosition.y)
+          .multiplyScalar(this.translateSpeed);
+      
+      this._oldTarget.set(this._tempTranslate);
+      this._translating = false;
+    }
     
     // Rotation
     if (this._mouseRotate) {

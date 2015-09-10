@@ -131,7 +131,7 @@ export default class Material {
   _createProgram (vertexCode, pixelCode) {
     let defines = '';
     for (let i=0; i < this._defines.length; i++) {
-      defines += '#define ' + this._defines[i]; + '\n';
+      defines += '#define ' + this._defines[i] + '\n';
     }
     
     this._program = this._renderer.createProgram(

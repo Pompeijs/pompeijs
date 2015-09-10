@@ -12,6 +12,15 @@ export default class Core {
   static DegToRad () {
     return Math.PI / 180.0;
   }
+  
+  static PowerOfTwo (size, max) {
+    let count = 1;
+    while (count < size) {
+      count = count << 1;
+    }
+    
+    return count;
+  }
 
   // TO REVIEW
   static LoadFile (url, asArrayBuffer, onLoadedFile) {

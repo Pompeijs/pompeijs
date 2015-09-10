@@ -1,5 +1,7 @@
 import { PompeiError } from './utils/errors';
 
+import Core from './Core/Core';
+
 import { Vector2 } from './Core/Vector';
 import Matrix from './Core/Matrix';
 
@@ -225,8 +227,24 @@ export default class Renderer {
     let image = new Image();
     
     image.onload = () => {
-      let texture = this._gl.createTexture();
+      // If image not power of two, create a canvas to render
+      let powerOfTwoWidth = Core.PowerOfTwo(image.width, 4096);
+      let powerOfTwoHeight = Core.PowerOfTwo(image.height, 4096);
       
+      let canvas = null;
+      let canvasContext = null;
+      
+      if (image.width !== powerOfTwoWidth || image.height !== powerOfTwoHeight) {
+        canvas = document.createElement('canvas');
+        canvasContext = canvas.getContext('2d');
+        
+        canvas.width = powerOfTwoWidth;
+        canvas.height = powerOfTwoHeight;
+        canvasContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, powerOfTwoWidth, powerOfTwoHeight);
+      }
+      
+      // Create and configure WebGL texture
+      let texture = this._gl.createTexture();
       texture._baseWidth = image.width;
       texture._baseHeight = image.height;
       texture._width = image.width;
@@ -234,12 +252,12 @@ export default class Renderer {
       
       this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
       this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
-      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
+      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, canvas === null ? image : canvas);
       this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
       this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
       
-      this._textures.push(new Texture(this, url, image, texture));
+      this._textures.push(new Texture(this, url, canvas === null ? image : canvas, texture));
       
       if (onLoaded) {
         onLoaded(this._textures[this._textures.length - 1]);
@@ -305,6 +323,19 @@ export default class Renderer {
     this._gl.deleteBuffer(vertexBuffer._indexBuffer);
     this._gl.deleteBuffer(vertexBuffer._normalBuffer);
     this._gl.deleteBuffer(vertexBuffer._uvBuffer);
+  }
+  
+  removeTexture (texture) {
+    for (let i=0; i < this._textures.length; i++) {
+      if (this._textures[i] === texture) {
+        // Remove WebGL Texture
+        this._gl.deleteTexture(texture.texture);
+        this._textures.splice(i, 1);
+        return true;
+      }
+    }
+    
+    return false;
   }
   
   // Programs
