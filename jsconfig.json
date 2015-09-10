@@ -30,6 +30,9 @@
 		"src/Animators/RotationAnimator.js",
 		"src/Animators/RotationCameraAnimator.js",
 		
-		"src/Material/Material.js"
+		"src/Material/Material.js",
+		"src/Material/SolidMaterial.js",
+		
+		"src/Textures/Texture.js"
 	]
 }

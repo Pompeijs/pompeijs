@@ -28,20 +28,24 @@ export default class Material {
     if (uniforms && !Array.isArray(uniforms)) {
       throw new PompeiError('Bad parameter: uniforms must be an array of string. constructor (renderer, vertexPath, pixelPath, attributes, uniforms)');
     }
+    
+    this.backFaceCulling = true;
+    this._textures = [];
 
     this._renderer = renderer;
-
-    this._defines = defines ? defines : [];
 
     this._vertexPath = vertexPath || defaults.vertexPath;
     this._pixelPath = pixelPath || defaults.pixelPath;
 
+    this._defines = defines ? defines : [];
     this._attributes = attributes;
     this._uniforms = uniforms ? uniforms : [];
+    
     this._fromDOM = fromDOM;
-
-    this._program = null;
     this._programReady = false;
+    
+    this._program = null;
+    this._uniformsLocations = { };
   }
 
   get renderer () {
@@ -66,6 +70,18 @@ export default class Material {
   
   get programReady () {
     return this._programReady;
+  }
+  
+  get uniformsLocations () {
+    return this._uniformsLocations;
+  }
+  
+  get textures () {
+    return this._textures;
+  }
+  
+  addTexture (texture) {
+    this._textures.push(texture);
   }
   
   compile () {
@@ -98,6 +114,7 @@ export default class Material {
     }
 
     this._createProgram(vertex, pixel);
+    this._renderer.configureMaterialUniforms(this);
   }
   
   // Can be overrided
@@ -110,9 +127,6 @@ export default class Material {
 
     renderer.setMatrix('u_worldViewProjection', worldViewProjection);
   }
-  
-  // To be overrided
-  onSetMaterial (material) { }
   
   _createProgram (vertexCode, pixelCode) {
     let defines = '';

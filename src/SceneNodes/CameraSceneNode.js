@@ -20,7 +20,7 @@ export default class CameraSceneNode extends SceneNode {
     this._upVector = new Vector3([0, 1, 0]);
     
     this._fov = Math.PI / 2.5;
-    this._aspect = 4.0 / 3.0;
+    this._aspect = scene.renderer.canvas.width / scene.renderer.canvas.height;
     this._zNear = 1.0;
     this._zFar = 3000.0;
     

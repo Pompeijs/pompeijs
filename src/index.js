@@ -9,6 +9,9 @@ import Color from './Core/Color';
 import Vertex from './Core/Vertex';
 import VertexBuffer from './Core/VertexBuffer';
 
+import Material from './Material/Material';
+import SolidMaterial from './Material/SolidMaterial';
+
 import Mesh from './Mesh/Mesh';
 
 import Animator from './Animators/Animator';
@@ -18,6 +21,8 @@ import RotationCameraAnimator from './Animators/RotationCameraAnimator';
 import CameraSceneNode from './SceneNodes/CameraSceneNode';
 import SceneNode from './SceneNodes/SceneNode';
 import MeshSceneNode from './SceneNodes/MeshSceneNode';
+
+import Texture from './Textures/Texture';
 
 import { PompeiError, WebGLSupportError } from './utils/errors';
 
@@ -33,6 +38,9 @@ export default {
 
   Vertex,
   VertexBuffer,
+  
+  Material,
+  SolidMaterial,
 
   Mesh,
   
@@ -43,6 +51,8 @@ export default {
   CameraSceneNode,
   SceneNode,
   MeshSceneNode,
+  
+  Texture,
 
   PompeiError,
   WebGLSupportError

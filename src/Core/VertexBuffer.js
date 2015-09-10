@@ -8,6 +8,7 @@ export default class VertexBuffer {
     this._positions = [];
     this._normals = [];
     this._uvs = [];
+    this._colors = [];
     this._indices = [];
 
     this._material = null;
@@ -16,6 +17,7 @@ export default class VertexBuffer {
     this._indexBuffer = null;
     this._normalBuffer = null;
     this._uvBuffer = null;
+    this._colorBuffer = null;
 
     this._indexIs32Bits = false;
 
@@ -97,6 +99,15 @@ export default class VertexBuffer {
   set uvs (uvs) {
     this._uvs = uvs;
   }
+  
+  // Colors
+  get colors () {
+    return this._colors;
+  }
+  
+  set colors (colors) {
+    this._colors = colors;
+  }
 
   // Methods
   merge (vertices) {
@@ -113,8 +124,15 @@ export default class VertexBuffer {
       }
 
       if (vertices[i].uv) {
-        this._uvs.push(vertices[i].uvs.x);
-        this._uvs.push(vertices[i].uvs.y);
+        this._uvs.push(vertices[i].uv.x);
+        this._uvs.push(vertices[i].uv.y);
+      }
+      
+      if (vertices[i].colors) {
+        this._colors.push(vertices[i].color.r);
+        this._colors.push(vertices[i].color.g);
+        this._colors.push(vertices[i].color.b);
+        this._colors.push(vertices[i].color.a);
       }
     }
   }
@@ -153,6 +171,14 @@ export default class VertexBuffer {
 
   get a_uv_stride () {
     return 2;
+  }
+  
+  get a_color () {
+    return this._colorBuffer;
+  }
+  
+  get a_color_stride () {
+    return 4;
   }
   
   get indexBuffer () {

@@ -4,7 +4,10 @@ import { Vector2 } from './Core/Vector';
 import Matrix from './Core/Matrix';
 
 import VertexBuffer from './Core/VertexBuffer';
-import Material from './Material/Material';
+
+import SolidMaterial from './Material/SolidMaterial';
+
+import Texture from './Textures/Texture';
 
 export default class Renderer {
   constructor(context, options) {
@@ -28,21 +31,15 @@ export default class Renderer {
     this._viewPort = new Vector2([0, 0]);
     
     // Rendering
-    this._defaultMaterial = new Material(
-      this,
-      'Shaders/Solid.vertex.glsl',
-      'Shaders/Solid.fragment.glsl',
-      ["a_position"],
-      ["u_worldViewProjection"],
-      [],
-      false
-    );
-    this._defaultMaterial.compile();
+    this._defaultMaterial = new SolidMaterial(this);
     this._currentMaterial = null;
     
     this._fps = 0;
     this._potentialFps = 0;
     this._currentTime = 0;
+    
+    // Textures
+    this._textures = [];
   }
 
   resize(size) {
@@ -136,6 +133,27 @@ export default class Renderer {
     
     // Use program
     this._gl.useProgram(this._currentMaterial.program);
+    
+    // Bind samplers
+    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+      this._gl.activeTexture(this._gl["TEXTURE" + i]);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+    }
+  }
+  
+  configureMaterialUniforms (material) {
+    if (!material.programReady) {
+      return;
+    }
+    
+    for (let i=0; i < material.uniforms.length; i++) {
+      let location = this._gl.getUniformLocation(material.program, material.uniforms[i]);
+      if (!location) {
+        continue;
+      }
+      
+      material.uniformsLocations[material.uniforms[i]] = location;
+    }
   }
   
   createProgram (vertexCode, pixelCode, attributes, uniforms, defines) {
@@ -183,6 +201,48 @@ export default class Renderer {
     return program;
   }
   
+  createTexture (url, onLoaded, force) {
+    // Check if exists
+    if (!force) {
+      for (let i=0; i < this._textures.length; i++) {
+        if (this._textures[i].url === url) {
+          return this._textures[i];
+        }
+      }
+    }
+    
+    // Create texture
+    let image = new Image();
+    
+    image.onload = () => {
+      let texture = this._gl.createTexture();
+      
+      texture._baseWidth = image.width;
+      texture._baseHeight = image.height;
+      texture._width = image.width;
+      texture._height = image.height;
+      
+      this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
+      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, true);
+      this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR_MIPMAP_NEAREST);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+      
+      this._textures.push(new Texture(this, url, image, texture));
+      
+      if (onLoaded) {
+        onLoaded(this._textures[this._textures.length - 1]);
+      }
+    };
+    
+    image.onerror = (error) => {
+      console.warn('Cannot load texture located at ' + url);
+    };
+    
+    image.src = url;
+  }
+  
   createVertexBuffer(vertexBuffer) {
     if (!(vertexBuffer instanceof VertexBuffer)) {
       throw new PompeiError('Bad argument: vertexBuffer must be a VertexBuffer. createVertexBuffer (vertexBuffer)');
@@ -205,6 +265,9 @@ export default class Renderer {
     }
     if (vertexBuffer.uvs.length > 0) {
       vertexBuffer._uvBuffer = onBindBuffer(vertexBuffer.uvs, this._gl.ARRAY_BUFFER);
+    }
+    if (vertexBuffer.colors.length > 0) {
+      vertexBuffer._colorBuffer = onBindBuffer(vertexBuffer.colors, this._gl.ARRAY_BUFFER);
     }
   }
 
@@ -235,10 +298,20 @@ export default class Renderer {
   }
   
   // Materials
-  setMatrix (uniform, matrix) {
-    let location = this._gl.getUniformLocation(this._currentMaterial.program, uniform);
+  setInt (uniform, int) {
+    let location = this._currentMaterial.uniformsLocations[uniform];
     if (!location) {
-      return; // Warning message ?
+      return;
+    }
+    
+    this._gl.uniform1i(location, int);
+  }
+  
+  setMatrix (uniform, matrix) {
+    //let location = this._gl.getUniformLocation(this._currentMaterial.program, uniform);
+    let location = this._currentMaterial.uniformsLocations[uniform];
+    if (!location) {
+      return;
     }
     
     this._gl.uniformMatrix4fv(location, false, matrix.m);

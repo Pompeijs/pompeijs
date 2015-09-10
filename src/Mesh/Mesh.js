@@ -28,7 +28,7 @@ export default class Mesh {
 
     this._vertexBuffers.push(vertexBuffer);
   }
-
+  
   removeVertexBuffer (vertexBuffer) {
     const indice = this._vertexBuffers.indexOf(vertexBuffer);
     

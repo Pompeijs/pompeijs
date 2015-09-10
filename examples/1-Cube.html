@@ -81,10 +81,59 @@
             20, 21, 22,     20, 22, 23    // left
         ];
         
+        var normals = [
+            0,  0,  1,
+            0,  0,  1,
+            0,  0,  1,
+            0,  0,  1,
+            
+            0,  0, -1,
+            0,  0, -1,
+            0,  0, -1,
+            0,  0, -1,
+            
+            1,  0,  0,
+            1,  0,  0,
+            1,  0,  0,
+            1,  0,  0,
+            
+            -1, 0,  0,
+            -1, 0,  0,
+            -1, 0,  0,
+            -1, 0,  0,
+            
+            0,  1,  0,
+            0,  1,  0,
+            0,  1,  0,
+            0,  1,  0,
+            
+            0,  -1, 0,
+            0,  -1, 0,
+            0,  -1, 0,
+            0,  -1, 0,
+        ];
+        
+        var uvs = [
+            0,  1,  0, 0,  1,  0,
+            0,  1,  0, 0,  1,  0,
+            0,  1,  0, 0,  1,  0,
+            0,  1,  0, 0,  1,  0,
+            0,  1,  0, 0,  1,  0,
+            0,  1,  0, 0,  1,  0,
+        ];
+        
+        var colors = [];
+        for (var i=0; i < positions.length; i+=3) {
+            colors = colors.concat([1, 0, 0, 1]);
+        }
+        
         // Create vertex buffer
         var vertexBuffer = new Pompei.VertexBuffer();
         vertexBuffer.indices = indices;
         vertexBuffer.positions = positions;
+        vertexBuffer.normals = normals;
+        vertexBuffer.uvs = uvs;
+        vertexBuffer.colors = colors;
         
         var mesh = new Pompei.Mesh([vertexBuffer], scene);
         mesh.finish();

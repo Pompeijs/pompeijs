@@ -5,11 +5,12 @@ precision highp float;
 uniform mat4 u_worldViewProjection;
 
 attribute vec3 a_position;
+attribute vec2 a_uv;
 
-varying vec3 v_position;
+varying vec2 v_uv;
 
 void main () {
-    v_position = a_position;
+    v_uv = a_uv;
 
     gl_Position = u_worldViewProjection * vec4(a_position.xyz, 1.0);
 }
