@@ -5,6 +5,7 @@ import Matrix from './Core/Matrix';
 
 import VertexBuffer from './Core/VertexBuffer';
 
+import MaterialRenderer from './Rendering/MaterialRenderer';
 import SolidMaterial from './Material/SolidMaterial';
 
 import Texture from './Textures/Texture';
@@ -33,6 +34,8 @@ export default class Renderer {
     // Rendering
     this._defaultMaterial = new SolidMaterial(this);
     this._currentMaterial = null;
+    
+    this._materialRenderer = new MaterialRenderer(this._gl);
     
     this._fps = 0;
     this._potentialFps = 0;
@@ -91,6 +94,10 @@ export default class Renderer {
   get canvas () {
     return this._gl.canvas;
   }
+  
+  get materialRenderer () {
+    return this._materialRenderer;
+  }
 
   drawBuffer (vertexBuffer) {
     // Bind attributes
@@ -112,11 +119,17 @@ export default class Renderer {
       }
     }
     
+    // Bind samplers
+    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+      this._gl.activeTexture(this._gl["TEXTURE" + i]);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+    }
+    
     // Bind indices
     this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, vertexBuffer.indexBuffer);
     
     // Set constants
-    this._currentMaterial.onSetConstants(this);
+    this._currentMaterial.onSetConstants(this, this._materialRenderer);
     
     // Draw
     let is32Bits = vertexBuffer.isIndex32Bits;
@@ -131,14 +144,11 @@ export default class Renderer {
       this._currentMaterial = material;
     }
     
+    // Configure Material Renderer
+    this._materialRenderer.currentMaterial = this._currentMaterial;
+    
     // Use program
     this._gl.useProgram(this._currentMaterial.program);
-    
-    // Bind samplers
-    for (let i=0; i < this._currentMaterial.textures.length; i++) {
-      this._gl.activeTexture(this._gl["TEXTURE" + i]);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
-    }
   }
   
   configureMaterialUniforms (material) {
@@ -223,10 +233,10 @@ export default class Renderer {
       texture._height = image.height;
       
       this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
-      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, true);
+      this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
       this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
-      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
-      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR_MIPMAP_NEAREST);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+      this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
       
       this._textures.push(new Texture(this, url, image, texture));
@@ -295,26 +305,6 @@ export default class Renderer {
     this._gl.deleteBuffer(vertexBuffer._indexBuffer);
     this._gl.deleteBuffer(vertexBuffer._normalBuffer);
     this._gl.deleteBuffer(vertexBuffer._uvBuffer);
-  }
-  
-  // Materials
-  setInt (uniform, int) {
-    let location = this._currentMaterial.uniformsLocations[uniform];
-    if (!location) {
-      return;
-    }
-    
-    this._gl.uniform1i(location, int);
-  }
-  
-  setMatrix (uniform, matrix) {
-    //let location = this._gl.getUniformLocation(this._currentMaterial.program, uniform);
-    let location = this._currentMaterial.uniformsLocations[uniform];
-    if (!location) {
-      return;
-    }
-    
-    this._gl.uniformMatrix4fv(location, false, matrix.m);
   }
   
   // Programs

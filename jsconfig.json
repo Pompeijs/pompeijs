@@ -12,6 +12,8 @@
 		"src/Device.js",
 		"src/Renderer.js",
 		"src/Scene.js",
+		
+		"src/Rendering/MaterialRenderer.js",
 
 		"src/Core/Matrix.js",
 		"src/Core/Color.js",

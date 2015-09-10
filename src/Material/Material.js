@@ -118,14 +118,14 @@ export default class Material {
   }
   
   // Can be overrided
-  onSetConstants (renderer) {
+  onSetConstants (renderer, service) {
     let worldViewProjection = Matrix.Identity();
     worldViewProjection
       .multiply(renderer.projectionMatrix)
       .multiply(renderer.viewMatrix)
       .multiply(renderer.worldMatrix);
-
-    renderer.setMatrix('u_worldViewProjection', worldViewProjection);
+      
+    service.setMatrix('u_worldViewProjection', worldViewProjection);
   }
   
   _createProgram (vertexCode, pixelCode) {

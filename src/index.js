@@ -2,6 +2,8 @@ import Device from './Device';
 import Renderer from './Renderer';
 import Scene from './Scene';
 
+import MaterialRenderer from './Rendering/MaterialRenderer';
+
 import Matrix from './Core/Matrix';
 import { Vector2, Vector3 } from './Core/Vector';
 import Color from './Core/Color';
@@ -30,6 +32,8 @@ export default {
   Device,
   Renderer,
   Scene,
+
+  MaterialRenderer,
 
   Matrix,
   Vector3,

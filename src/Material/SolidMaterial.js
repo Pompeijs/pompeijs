@@ -18,10 +18,10 @@ export default class SolidMaterial extends Material {
   }
   
   // Can be overrided
-  onSetConstants (renderer) {
-	  super.onSetConstants(renderer);
+  onSetConstants (renderer, service) {
+	  super.onSetConstants(renderer, service);
     
     // Textures
-    renderer.setInt("u_diffuse", 0);
+    service.setInt("u_diffuse", 0);
   }
 }
