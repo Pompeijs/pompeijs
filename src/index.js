@@ -1,15 +1,62 @@
-import { PompeiError, WebGLSupportError } from './utils/errors';
-
 import Device from './Device';
-import Mesh from './Mesh';
-import Vertex from './Vertex';
-import Vector from './Vector';
+import Renderer from './Renderer';
+import Scene from './Scene';
+
+import MaterialRenderer from './Rendering/MaterialRenderer';
+
+import Matrix from './Core/Matrix';
+import { Vector2, Vector3 } from './Core/Vector';
+import Color from './Core/Color';
+
+import Vertex from './Core/Vertex';
+import VertexBuffer from './Core/VertexBuffer';
+
+import Material from './Material/Material';
+import SolidMaterial from './Material/SolidMaterial';
+
+import Mesh from './Mesh/Mesh';
+
+import Animator from './Animators/Animator';
+import RotationAnimator from './Animators/RotationAnimator';
+import RotationCameraAnimator from './Animators/RotationCameraAnimator';
+
+import CameraSceneNode from './SceneNodes/CameraSceneNode';
+import SceneNode from './SceneNodes/SceneNode';
+import MeshSceneNode from './SceneNodes/MeshSceneNode';
+
+import Texture from './Textures/Texture';
+
+import { PompeiError, WebGLSupportError } from './utils/errors';
 
 export default {
   Device,
-  Mesh,
+  Renderer,
+  Scene,
+
+  MaterialRenderer,
+
+  Matrix,
+  Vector3,
+  Vector2,
+  Color,
+
   Vertex,
-  Vector,
+  VertexBuffer,
+  
+  Material,
+  SolidMaterial,
+
+  Mesh,
+  
+  Animator,
+  RotationAnimator,
+  RotationCameraAnimator,
+
+  CameraSceneNode,
+  SceneNode,
+  MeshSceneNode,
+  
+  Texture,
 
   PompeiError,
   WebGLSupportError

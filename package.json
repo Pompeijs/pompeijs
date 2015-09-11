@@ -37,6 +37,7 @@
     "karma-mocha": "^0.1.10",
     "karma-phantomjs-launcher": "^0.2.0",
     "karma-sauce-launcher": "^0.2.11",
+    "raw-loader": "^0.5.1",
     "serve": "^1.4.0",
     "sinon": "^1.15.3",
     "sinon-chai": "^2.8.0",

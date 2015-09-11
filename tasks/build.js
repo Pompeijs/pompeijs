@@ -29,6 +29,9 @@ module.exports = function(options) {
       },
       module: {
         loaders: [{
+          test: /\.glsl$/,
+          loader: 'raw'
+        }, {
           test: /\.js$/,
           exclude: /node_modules/,
           loader: 'babel-loader'

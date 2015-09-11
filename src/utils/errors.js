@@ -1,4 +1,4 @@
-class PompeiError extends Error {
+export class PompeiError extends Error {
   constructor(message) {
     super();
     this.message = message;
@@ -7,7 +7,7 @@ class PompeiError extends Error {
   }
 }
 
-class WebGLSupportError extends PompeiError {
+export class WebGLSupportError extends PompeiError {
   constructor(m) {
     super(m);
     this.message = m || 'WebGL is not supported';
