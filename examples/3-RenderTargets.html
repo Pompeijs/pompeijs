@@ -176,25 +176,31 @@
         
         var node = new Pompei.MeshSceneNode("cube", scene, null, mesh);
         node.scale.set([1, 1, 1]);
-        //node.addAnimator(new Pompei.RotationAnimator(scene, node, new Pompei.Vector3([0.01, 0.01, 0.01])));
         
         var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
         
+        var pp = new Pompei.PostProcess("pp", scene, null, null, [], [], false);
+        
+        /*
+        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2([512, 512]), true);
+        pp.addTexture(rt);
+        */
         renderer.createTexture("empty.jpg", function(texture) {
-            renderer.defaultMaterial.addTexture(texture);
+            pp.addTexture(texture);
         });
         
-        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2([512, 512]), true);
-        renderer.begin(clearColor, true, true);
-        renderer.setRenderTarget(rt);
-        scene.drawAll();
-        renderer.setRenderTarget(null);
-        renderer.end();
+        var screenquad = new Pompei.ScreenQuad("quad", scene);
+        screenquad.material = pp;
         
         function update() {
             window.requestAnimationFrame(update);
             renderer.begin(clearColor, true, true);
-            scene.drawAll();
+            
+            //renderer.setRenderTarget(rt, clearColor, true);
+            //scene.drawAll();
+            
+            //renderer.setRenderTarget(null, clearColor, true);
+            screenquad.render();
             renderer.end();
         };
         update();

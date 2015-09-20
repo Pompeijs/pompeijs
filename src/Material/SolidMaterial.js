@@ -3,11 +3,14 @@ import { PompeiError } from '../utils/errors';
 import Renderer from '../Renderer';
 import Material from './Material';
 
+import vertexShader from '../Shaders/Solid.vertex.glsl';
+import pixelShader from '../Shaders/Solid.fragment.glsl';
+
 export default class SolidMaterial extends Material {
   constructor (renderer) {
     super(renderer,
-      'Shaders/Solid.vertex.glsl',
-      'Shaders/Solid.fragment.glsl',
+      vertexShader,
+      pixelShader,
       ["a_position", "a_uv"],
       ["u_worldViewProjection", "u_diffuse"],
       [],

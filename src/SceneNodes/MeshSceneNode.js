@@ -1,5 +1,7 @@
 import { PompeiError } from '../utils/errors';
+
 import SceneNode from './SceneNode';
+
 import { Vector3 } from '../Core/Vector';
 import Mesh from '../Mesh/Mesh.js';
 
@@ -20,6 +22,22 @@ export default class MeshSceneNode extends SceneNode {
 		}
 		
 		this._mesh = mesh;
+	}
+	
+	setMaterial (indice, material) {
+		if (indice < 0 || indice >= this._mesh.vertexBuffers.length) {
+			throw new PompeiError('Bad parameter: indice out of range. setMaterial (indice, material)');
+		}
+		
+		this._mesh.vertexBuffers[indice].material = material;
+	}
+	
+	getMaterial (indice, material) {
+		if (indice < 0 || indice >= this._mesh.vertexBuffers.length) {
+			throw new PompeiError('Bad parameter: indice out of range. setMaterial (indice, material)');
+		}
+		
+		return this._mesh.vertexBuffers[indice].material;
 	}
 	
 	render() {

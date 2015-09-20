@@ -7,6 +7,7 @@ export default class Texture {
     this._texture = texture;
     this._image = image;
     this._isCanvas = image instanceof HTMLCanvasElement;
+    this._isRenderTarget = false;
   }
   
   clone (onCloned) {
@@ -35,5 +36,9 @@ export default class Texture {
   
   get canvas () {
     return this._image;
+  }
+  
+  get isRenderTarget () {
+    return this._isRenderTarget;
   }
 }

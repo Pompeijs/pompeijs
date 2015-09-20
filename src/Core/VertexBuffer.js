@@ -3,7 +3,7 @@ import Vertex from './Vertex';
 import Material from '../Material/Material';
 
 export default class VertexBuffer {
-  constructor (vertices, indices) {
+  constructor (vertices) {
 
     this._positions = [];
     this._normals = [];

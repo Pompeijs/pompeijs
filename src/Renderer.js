@@ -3,6 +3,7 @@ import { PompeiError } from './utils/errors';
 import Core from './Core/Core';
 
 import { Vector2 } from './Core/Vector';
+import { Dimension2 } from './Core/Vector';
 import Matrix from './Core/Matrix';
 
 import VertexBuffer from './Core/VertexBuffer';
@@ -11,6 +12,7 @@ import MaterialRenderer from './Rendering/MaterialRenderer';
 import SolidMaterial from './Material/SolidMaterial';
 
 import Texture from './Textures/Texture';
+import RenderTargetTexture from './Textures/RenderTargetTexture';
 
 export default class Renderer {
   constructor(context, options) {
@@ -38,6 +40,8 @@ export default class Renderer {
     this._currentMaterial = null;
     
     this._materialRenderer = new MaterialRenderer(this._gl);
+    
+    this._currentRenderTarget = null;
     
     this._fps = 0;
     this._potentialFps = 0;
@@ -82,7 +86,7 @@ export default class Renderer {
     let timeForFrame = currentTime - this._currentTime;
     
     this._potentialFps = ((1000.0 / 60.0) / timeForFrame) * 60.0;
-    this._currentMaterial = currentTime;
+    this._currentTime = currentTime;
   }
   
   now () {
@@ -91,14 +95,6 @@ export default class Renderer {
   
   fps () {
     return this._potentialFps;
-  }
-  
-  get canvas () {
-    return this._gl.canvas;
-  }
-  
-  get materialRenderer () {
-    return this._materialRenderer;
   }
 
   drawBuffer (vertexBuffer) {
@@ -135,7 +131,13 @@ export default class Renderer {
     
     // Draw
     let is32Bits = vertexBuffer.isIndex32Bits;
-    this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);    
+    this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);  
+    
+    // Unbind samplers
+    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+      this._gl.activeTexture(this._gl["TEXTURE" + i]);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+    }  
   }
   
   setMaterial (material) {
@@ -151,6 +153,42 @@ export default class Renderer {
     
     // Use program
     this._gl.useProgram(this._currentMaterial.program);
+  }
+  
+  setRenderTarget (renderTarget, clearColor, clearBackBuffer) {
+    if (renderTarget && !(renderTarget instanceof RenderTargetTexture)) {
+      throw new PompeiError('Bad parameter: renderTarget must be a RenderTargetTexture. setRenderTarget (renderTarget)');
+    }
+    
+    if (this._currentRenderTarget || !renderTarget) {
+      // Unbind
+      this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+      
+      if (!renderTarget) {
+        this._gl.viewport(0, 0, this._gl.canvas.width, this._gl.canvas.height);
+        this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+        return;
+      }
+    }
+    
+    // Bind
+    let framebuffer = renderTarget.framebuffer;
+    
+    this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, framebuffer);
+    this._gl.viewport(0, 0, framebuffer._width, framebuffer._height);
+    
+    // Clear
+    clearBackBuffer = clearBackBuffer || true;
+    if (clearBackBuffer) {
+      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    }
+    
+    if (clearColor) {
+      this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    }
+    
+    // Set current render target
+    this._currentRenderTarget = renderTarget || null;
   }
   
   configureMaterialUniforms (material) {
@@ -211,6 +249,51 @@ export default class Renderer {
     }
     
     return program;
+  }
+  
+  createRenderTarget (name, size, force) {
+    // Check is exists
+    if (!force) {
+      for (let i=0; i < this._textures.length; i++) {
+        if (this._textures[i].isRenderTarget && this._textures[i].url === name) {
+          return this._textures[i];
+        }
+      }
+    }
+    
+    if (!(size instanceof Dimension2)) {
+      throw new PompeiError('Bad parameter: size must be a Dimension2. createRenderTarget (name, size, force)');
+    }
+    
+    // Create texture
+    let texture = this._gl.createTexture();
+    
+    this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+    this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, size.width, size.height, 0, this._gl.RGBA, this._gl.UNSIGNED_BYTE, null);
+    
+    // Create frame buffer
+    let framebuffer = this._gl.createFramebuffer();
+    this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, framebuffer);
+    this._gl.framebufferTexture2D(this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, this._gl.TEXTURE_2D, texture, 0);
+    
+    // Unbind
+    this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+    this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
+    
+    framebuffer._width = size.width;
+    framebuffer._height = size.height;
+    
+    texture._framebuffer = framebuffer;
+    texture._width = size.width;
+    texture._height = size.height;
+    
+    this._textures.push(new RenderTargetTexture(this, name, texture, framebuffer));
+    
+    return this._textures[this._textures.length - 1];
   }
   
   createTexture (url, onLoaded, force) {
@@ -285,16 +368,16 @@ export default class Renderer {
       return vbo;
     };
     
-    if (vertexBuffer.positions.length > 0) {
+    if (!vertexBuffer.a_position && vertexBuffer.positions.length > 0) {
       vertexBuffer._vertexBuffer = onBindBuffer(vertexBuffer.positions, this._gl.ARRAY_BUFFER);
     }
-    if (vertexBuffer.normals.length > 0) {
+    if (!vertexBuffer.a_normal && vertexBuffer.normals.length > 0) {
       vertexBuffer._normalBuffer = onBindBuffer(vertexBuffer.normals, this._gl.ARRAY_BUFFER);
     }
-    if (vertexBuffer.uvs.length > 0) {
+    if (!vertexBuffer.a_uv && vertexBuffer.uvs.length > 0) {
       vertexBuffer._uvBuffer = onBindBuffer(vertexBuffer.uvs, this._gl.ARRAY_BUFFER);
     }
-    if (vertexBuffer.colors.length > 0) {
+    if (!vertexBuffer.a_color && vertexBuffer.colors.length > 0) {
       vertexBuffer._colorBuffer = onBindBuffer(vertexBuffer.colors, this._gl.ARRAY_BUFFER);
     }
   }
@@ -319,17 +402,30 @@ export default class Renderer {
   }
   
   removeBuffer (vertexBuffer) {
-    this._gl.deleteBuffer(vertexBuffer._vertexBuffer);
-    this._gl.deleteBuffer(vertexBuffer._indexBuffer);
-    this._gl.deleteBuffer(vertexBuffer._normalBuffer);
-    this._gl.deleteBuffer(vertexBuffer._uvBuffer);
+    this._gl.deleteBuffer(vertexBuffer.a_position);
+    this._gl.deleteBuffer(vertexBuffer.a_normal);
+    this._gl.deleteBuffer(vertexBuffer.a_uv);
+    this._gl.deleteBuffer(vertexBuffer.a_color);
+    this._gl.deleteBuffer(vertexBuffer.indexBuffer);
+    
+    vertexBuffer._vertexBuffer = null;
+    vertexBuffer._normalBuffer = null;
+    vertexBuffer._uvBuffer = null;
+    vertexBuffer._colorBuffer = null;
+    vertexBuffer._indexBuffer = null;
   }
   
   removeTexture (texture) {
     for (let i=0; i < this._textures.length; i++) {
       if (this._textures[i] === texture) {
+        if (texture.isRenderTarget) {
+          // Delete framebuffer
+          this._gl.deleteFramebuffer(texture.framebuffer);
+        }
+        
         // Remove WebGL Texture
         this._gl.deleteTexture(texture.texture);
+        
         this._textures.splice(i, 1);
         return true;
       }
@@ -338,9 +434,22 @@ export default class Renderer {
     return false;
   }
   
+  get canvas () {
+    return this._gl.canvas;
+  }
+  
+  // Rendering
+  get currentRenderTarget () {
+    return this._currentRenderTarget;
+  }
+  
   // Programs
   get defaultMaterial () {
     return this._defaultMaterial;
+  }
+  
+  get materialRenderer () {
+    return this._materialRenderer;
   }
   
   // Transformations

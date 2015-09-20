@@ -21,6 +21,10 @@ export default class Core {
     
     return count;
   }
+  
+  static Fmod (x, y) {
+    return Number((x - (Math.floor(x / y) * y)).toPrecision(8));
+  }
 
   // TO REVIEW
   static LoadFile (url, asArrayBuffer, onLoadedFile) {

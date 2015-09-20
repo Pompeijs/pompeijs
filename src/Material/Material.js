@@ -1,15 +1,8 @@
 import { PompeiError } from '../utils/errors';
 import Renderer from '../Renderer';
+
 import Core from '../Core/Core.js';
 import Matrix from '../Core/Matrix';
-
-import vertexShader from '../Shaders/Solid.vertex.glsl';
-import pixelShader from '../Shaders/Solid.fragment.glsl';
-
-const defaults = {
-  vertexPath: 'Shaders/Solid.vertex.glsl',
-  pixelPath: 'Shaders/Solid.fragment.glsl'
-};
 
 export default class Material {
   constructor (renderer, vertexPath, pixelPath, attributes, uniforms, defines, fromDOM) {
@@ -34,8 +27,8 @@ export default class Material {
 
     this._renderer = renderer;
 
-    this._vertexPath = vertexPath || defaults.vertexPath;
-    this._pixelPath = pixelPath || defaults.pixelPath;
+    this._vertexPath = vertexPath;
+    this._pixelPath = pixelPath;
 
     this._defines = defines ? defines : [];
     this._attributes = attributes;
@@ -85,26 +78,12 @@ export default class Material {
   }
   
   compile () {
-    let vertex;
-    let pixel;
+    let vertex = this._vertexPath;
+    let pixel = this._pixelPath;
     
     if (this._fromDOM) {
       vertex = document.getElementById(this._vertexPath).innerText;
       pixel = document.getElementById(this._pixelPath).innerText;      
-    } else {
-      if (this._vertexPath === defaults.vertexPath) {
-        vertex = vertexShader;
-      } else {
-        // TODO
-        // Async loading via XHR using the Fetch API
-      }
-
-      if (this._pixelPath === defaults.pixelPath) {
-        pixel = pixelShader;
-      } else {
-        // TODO
-        // Async loading via XHR using the Fetch API
-      }
     }
 
     if (!vertex || !pixel) {

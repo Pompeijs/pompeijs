@@ -23,7 +23,7 @@ export default class Animator {
   }
 
   // To be overrided
-  onAnimate (timeMS) { }
+  onAnimate (object, timeMS) { }
   
   // To be overrided
   onFinished () { }

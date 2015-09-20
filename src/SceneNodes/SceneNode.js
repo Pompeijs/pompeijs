@@ -49,7 +49,7 @@ export default class SceneNode {
 		const now = this._scene.now();
 		
 		for (let i=0; i < this._animators.length; i++) {
-			this._animators[i].onAnimate(now);
+			this._animators[i].onAnimate(this, now);
 		}
 	}
 	
@@ -83,7 +83,7 @@ export default class SceneNode {
 		
 		if (this._parent) {
 			this._absoluteTransform.set(this._parent.absoluteTransformation)
-				.multiply(this.relativeTransformation)
+				.multiply(this.relativeTransformation);
 		}
 		else {
 			this._absoluteTransform.set(this.relativeTransformation);

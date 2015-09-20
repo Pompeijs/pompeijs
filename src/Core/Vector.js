@@ -79,6 +79,12 @@ export class Vector3 {
     
     return this;
   }
+  
+  divideScalar (scalar) {
+    this.x /= scalar;
+    this.y /= scalar;
+    this.z /= scalar;
+  }
 
   dot (other) {
     return this.x * other.x + this.y * other.y + this.z * other.z;
@@ -236,5 +242,27 @@ export class Vector2 {
   divide (other) {
     this.x /= other.x;
     this.y /= other.y;
+  }
+}
+
+export class Dimension2 extends Vector2 {
+  constructor (other) {
+    super(other);
+  }
+  
+  set width (width) {
+    this.x = width;
+  }
+  
+  get width () {
+    return this.x;
+  }
+  
+  set height (height) {
+    this.y = height;
+  }
+  
+  get height () {
+    return this.y;
   }
 }

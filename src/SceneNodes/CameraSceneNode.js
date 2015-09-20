@@ -56,6 +56,14 @@ export default class CameraSceneNode extends SceneNode {
     this._projectionMatrix.buildProjectionMatrix(this._fov, this._aspect, this._zNear, this._zFar)
   }
   
+  get aspect () {
+    return this._aspect;
+  }
+  
+  set aspect (aspect) {
+    this._aspect = aspect;
+  }
+  
   get target () {
     return this._target;
   }

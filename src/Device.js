@@ -21,6 +21,15 @@ export default class Device {
     
     this._renderer = new Renderer(context, options);
     this._scene = new Scene(this.renderer, options);
+    
+    // Configure events
+    window.addEventListener('resize', (event) => {
+      this._renderer.resize(new Vector2([canvas.width, canvas.height]));
+      
+      if (this._scene.activeCamera) {
+        this._scene.activeCamera.aspect = canvas.width / canvas.height;
+      }
+    });
   }
   
   get renderer () {

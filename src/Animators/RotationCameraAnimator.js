@@ -24,6 +24,7 @@ export default class RotationCameraAnimator extends Animator {
     this.translateSpeed = 0.1;
     this.zoomSpeed = 1.0;
     
+    // Members
     this._camera = camera;
     
     this._mouseRotate = false;
@@ -45,6 +46,7 @@ export default class RotationCameraAnimator extends Animator {
     this._lastCameraTarget = new Vector3(camera.target);
     this._oldTarget = new Vector3(camera.target);
     
+    // Temporary vectors
     this._tempPositionTargetX = new Vector3();
     this._tempPositionTargetY = new Vector3();
     this._tempPosition = new Vector3();
@@ -54,20 +56,20 @@ export default class RotationCameraAnimator extends Animator {
     this._tempPositionTarget = new Vector3();
     
     // Configure events
-    scene.renderer.canvas.addEventListener('mousedown', this.onMouseDown());
-    scene.renderer.canvas.addEventListener('mouseup', this.onMouseUp());
-    scene.renderer.canvas.addEventListener('mousewheel', this.onMouseWheel());
-    scene.renderer.canvas.addEventListener('mousemove', this.onMouseMove());
+    scene.renderer.canvas.addEventListener('mousedown', this._onMouseDown());
+    scene.renderer.canvas.addEventListener('mouseup', this._onMouseUp());
+    scene.renderer.canvas.addEventListener('mousewheel', this._onMouseWheel());
+    scene.renderer.canvas.addEventListener('mousemove', this._onMouseMove());
   }
   
-  onMouseMove () {
+  _onMouseMove () {
     return (event) => {
       this._mousePosition.x = event.clientX;
       this._mousePosition.y = event.clientY;
     };
   }
   
-  onMouseUp () {
+  _onMouseUp () {
     return (event) => {
       let button = event.button;
       
@@ -80,7 +82,7 @@ export default class RotationCameraAnimator extends Animator {
     };
   }
   
-  onMouseDown () {
+  _onMouseDown () {
     return (event) => {
       this._mousePosition.x = event.clientX;
       this._mousePosition.y = event.clientY;
@@ -90,13 +92,13 @@ export default class RotationCameraAnimator extends Animator {
     };
   }
   
-  onMouseWheel () {
+  _onMouseWheel () {
     return (event) => {
       this._currentMouseWheel += event.wheelDeltaY * 0.01;
     };
   }
   
-  onAnimate (timeMS) {
+  onAnimate (object, timeMS) {
     let nRotX = this._rotX;
     let nRotY = this._rotY;
     let nZoom = this._currentZoom;
