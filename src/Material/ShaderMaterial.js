@@ -21,8 +21,6 @@ export default class ShaderMaterial {
     if (uniforms && !Array.isArray(uniforms)) {
       throw new PompeiError('Bad parameter: uniforms must be an array of string. constructor (renderer, vertexPath, pixelPath, attributes, uniforms)');
     }
-    
-    this._textures = [];
 
     this._renderer = renderer;
 
@@ -66,14 +64,6 @@ export default class ShaderMaterial {
   
   get uniformsLocations () {
     return this._uniformsLocations;
-  }
-  
-  get textures () {
-    return this._textures;
-  }
-  
-  addTexture (texture) {
-    this._textures.push(texture);
   }
   
   compile () {

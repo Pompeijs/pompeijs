@@ -180,23 +180,20 @@
         var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
         
         renderer.createTexture("empty.jpg", function(texture) {
-            renderer.defaultMaterial.shaderMaterial.addTexture(texture);
+            node.materials[0].addTexture(texture);
         });
         
         var pp = new Pompei.PostProcess("pp", scene, null, null, [], [], false);
         
-        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2([512, 512]), true);
-        pp.addTexture(rt);
-        
-        renderer.createTexture("ground.jpg", function(texture) {
-            //pp.addTexture(texture);
-        });
-        
         var screenquad = new Pompei.ScreenQuad("quad", scene);
         screenquad.material.shaderMaterial = pp;
         
+        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2([512, 512]), true);
+        screenquad.material.addTexture(rt);
+        
         function update() {
             window.requestAnimationFrame(update);
+            
             renderer.begin(clearColor, true, true);
             renderer.setRenderTarget(rt, clearColor, true);
             scene.drawAll();

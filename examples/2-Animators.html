@@ -167,9 +167,6 @@
         var mesh = new Pompei.Mesh([vertexBuffer], scene);
         mesh.finish();
         
-        renderer.removeBuffer(vertexBuffer);
-        mesh.finish();
-        
         var camera = new Pompei.CameraSceneNode("camera", scene, null);
         camera.position.set([10, 10, 10]);
         camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
@@ -180,7 +177,7 @@
         var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
         
         renderer.createTexture("empty.jpg", function(texture) {
-            renderer.defaultMaterial.addTexture(texture);
+            node.materials[0].addTexture(texture);
         });
         
         function update() {

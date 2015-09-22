@@ -101,7 +101,7 @@ export default class Renderer {
 
   drawBuffer (vertexBuffer) {
     // Bind attributes
-    let shaderMaterial = this._currentMaterial.shaderMaterial;
+    let shaderMaterial = this._materialRenderer._currentShaderMaterial;
     let program = shaderMaterial.program;
     
     for (let i = 0; i < shaderMaterial.attributes.length; i++) {
@@ -121,9 +121,9 @@ export default class Renderer {
     }
     
     // Bind samplers
-    for (let i=0; i < shaderMaterial.textures.length; i++) {
+    for (let i=0; i < this._currentMaterial.textures.length; i++) {
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, shaderMaterial.textures[i].texture);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
     }
     
     // Bind indices
@@ -137,14 +137,14 @@ export default class Renderer {
     this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);  
     
     // Unbind samplers
-    for (let i=0; i < shaderMaterial.textures.length; i++) {
+    for (let i=0; i < this._currentMaterial.textures.length; i++) {
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
     }  
   }
   
   setMaterial (material) {
-    if (!material || !material.shaderMaterial.programReady) {
+    if (!material) {
       this._currentMaterial = this._defaultMaterial;
     }
     else {
@@ -152,12 +152,26 @@ export default class Renderer {
     }
     
     // Configure Material Renderer
-    this._materialRenderer.currentMaterial = this._currentMaterial.shaderMaterial;
-    
     let shaderMaterial = this._currentMaterial.shaderMaterial;
+    
+    if (!shaderMaterial || !shaderMaterial.programReady) {
+      shaderMaterial = this._defaultMaterial.shaderMaterial;
+    }
+    
+    this._materialRenderer.currentShaderMaterial = shaderMaterial;
     
     // Use program
     this._gl.useProgram(shaderMaterial.program);
+    
+    // Configure
+    if (this._currentMaterial.backFaceCulling) {
+      this._gl.enable(this._gl.CULL_FACE);
+    }
+    else {
+      this._gl.disable(this._gl.CULL_FACE);
+    }
+    this._gl.cullFace(this._currentMaterial.backFaceCulling ? this._gl.BACK : this._gl.FRONT);
+    
   }
   
   setRenderTarget (renderTarget, clearColor, clearBackBuffer) {
@@ -172,7 +186,6 @@ export default class Renderer {
       if (!renderTarget) {
         this._gl.viewport(0, 0, this._gl.canvas.width, this._gl.canvas.height);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT);
-        //this._gl.enable(this._gl.CULL_FACE);
         return;
       }
     }
@@ -196,7 +209,6 @@ export default class Renderer {
     }
     
     this._gl.clear(mode);
-    //this._gl.disable(this._gl.CULL_FACE);
     
     // Set current render target
     this._currentRenderTarget = renderTarget || null;

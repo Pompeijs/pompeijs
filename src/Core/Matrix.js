@@ -177,9 +177,9 @@ export default class Matrix {
   }
 
   setTranslation(translation) {
-    this.m[12] = -translation.x;
-    this.m[13] = -translation.y;
-    this.m[14] = -translation.z;
+    this.m[12] = translation.x;
+    this.m[13] = translation.y;
+    this.m[14] = translation.z;
 
     return this;
   }
@@ -219,12 +219,9 @@ export default class Matrix {
     }
 
     // We have to do the full calculation.
-    x =
-      this.m[0] * this.m[0] + this.m[1] * this.m[1] + this.m[2] * this.m[2];
-    y =
-      this.m[4] * this.m[4] + this.m[5] * this.m[5] + this.m[6] * this.m[6];
-    z =
-      this.m[8] * this.m[8] + this.m[9] * this.m[9] + this.m[10] * this.m[10];
+    x = this.m[0] * this.m[0] + this.m[1] * this.m[1] + this.m[2] * this.m[2];
+    y = this.m[4] * this.m[4] + this.m[5] * this.m[5] + this.m[6] * this.m[6];
+    z = this.m[8] * this.m[8] + this.m[9] * this.m[9] + this.m[10] * this.m[10];
 
     if (result) {
       result.x = x;

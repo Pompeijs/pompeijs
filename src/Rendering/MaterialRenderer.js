@@ -15,15 +15,15 @@ export default class MaterialRenderer {
     }
 
     this._gl = gl;
-    this._currentMaterial = null;
+    this._currentShaderMaterial = null;
   }
   
-  get currentMaterial () {
-    return this._currentMaterial;
+  get currentShaderMaterial () {
+    return this._currentShaderMaterial;
   }
   
-  set currentMaterial (currentMaterial) {
-    this._currentMaterial = currentMaterial;
+  set currentShaderMaterial (shaderMaterial) {
+    this._currentShaderMaterial = shaderMaterial;
   }
   
   setInt (uniform, int) {
@@ -99,6 +99,6 @@ export default class MaterialRenderer {
   }
   
   _getLocation (uniform) {
-    return this._currentMaterial.uniformsLocations[uniform];
+    return this._currentShaderMaterial.uniformsLocations[uniform];
   }
 }

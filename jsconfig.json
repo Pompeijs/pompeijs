@@ -23,6 +23,7 @@
 		"src/Core/VertexBuffer.js",
 		"src/Core/Core.js",
 		
+		"src/Mesh/GeometryCreator.js",
 		"src/Mesh/Mesh.js",
 		
 		"src/SceneNodes/SceneNode.js",

@@ -5,18 +5,29 @@ import Core from '../Core/Core.js';
 
 export default class Material {
   constructor (other) {
-    if (other) {
-      for (let thing in other) {
-        if (typeof other[thing] !== 'function') {
-          this[thing] = other[thing];
-        }
-      }
-    }
-    else {
-      this.shaderMaterial = null;
-      
-      this.backFaceCulling = true;
-      this.frontFaceCulling = false;
-    }
+    this._shaderMaterial = null;
+    this._backFaceCulling = true;
+    
+    this._textures = [];
+  }
+  
+  addTexture (texture) {
+    this._textures.push(texture);
+  }
+  
+  setTexture (indice, texture) {
+    this._textures[indice] = texture;
+  }
+  
+  get shaderMaterial () {
+    return this._shaderMaterial;
+  }
+  
+  set shaderMaterial (shaderMaterial) {
+    this._shaderMaterial = shaderMaterial;
+  }
+  
+  get textures () {
+    return this._textures;
   }
 }

@@ -30,14 +30,20 @@ export default class CameraSceneNode extends SceneNode {
     
     // Finish
     this.buildProjectionMatrix();
+    
+    // Events
+    window.addEventListener('resize', (event) => {
+      this._aspect = scene.renderer.canvas.width / scene.renderer.canvas.height;
+      this.buildProjectionMatrix();
+    });
   }
   
   render () {
     super.render();
     
     let tgtv = this._tempTarget.set(this._target)
-    .minus(this._position)
-    .normalize();
+      .minus(this._position)
+      .normalize();
     
     let up = this._tempUpVector.set(this._upVector).normalize();
     let dp = tgtv.dot(up);

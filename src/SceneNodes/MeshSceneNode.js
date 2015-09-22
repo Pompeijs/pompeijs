@@ -11,7 +11,7 @@ export default class MeshSceneNode extends SceneNode {
 	constructor (name, scene, parent, mesh) {
 		super(name, scene, parent);
 		
-		this._meshes = [mesh];
+		this.mesh = mesh;
 	}
 	
 	get meshes () {
@@ -19,7 +19,7 @@ export default class MeshSceneNode extends SceneNode {
 	}
 	
 	set mesh (mesh) {
-		if (!(mesh instanceof Mesh)) {
+		if (mesh && !(mesh instanceof Mesh)) {
 			throw new PompeiError('Bad argument: mesh must be a Mesh. set mesh (mesh)');
 		}
 		

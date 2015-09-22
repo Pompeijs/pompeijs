@@ -7,6 +7,8 @@ import Color from './Core/Color';
 import CameraSceneNode from './SceneNodes/CameraSceneNode';
 import SceneNode from './SceneNodes/SceneNode';
 
+import GeometryCreator from './Mesh/GeometryCreator';
+
 export default class Scene {
   constructor(renderer, options) {
     if (!renderer || !(renderer instanceof Renderer)) {
@@ -16,16 +18,34 @@ export default class Scene {
 
     this._renderer = renderer;
     
+    // Meshes
+    this._geometryCreator = null;
+    
+    // Scene node lists
     this._activeCamera = null;
     
+    this._skyboxes = [];
+    this._solidMeshes = [];
+    this._transparentMeshes = [];
+    
+    // Scene nodes
     this._rootSceneNode = new SceneNode("root", this);
     this._rootSceneNode.parent = null;
     
+    // Options
     this._clearColor = new Color([0, 0, 0, 1]);
   }
   
   get renderer () {
     return this._renderer;
+  }
+  
+  get geometryCreator () {
+    if (!this._geometryCreator) {
+      this._geometryCreator = new GeometryCreator(this);
+    }
+    
+    return this._geometryCreator;
   }
   
   get rootSceneNode () {
@@ -89,7 +109,7 @@ export default class Scene {
       return;
     }
 
-    for (var i=0; i < node.children.length; i++) {
+    for (let i=0; i < node.children.length; i++) {
       this.drawSceneNode(node.children[i], drawChildren);
     }
   }

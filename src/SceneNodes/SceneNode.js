@@ -158,15 +158,7 @@ export default class SceneNode {
 		this._scale = scale;
 	}
 	
-	// Transformations
-	get worldMatrix () {
-		this._tempWorldTransform.setScale(this._scale);
-		this._tempWorldTransform.setRotationDegrees(this._rotation);
-		this._tempWorldTransform.setTranslation(this._position);
-		
-		return this._tempWorldTransform;
-	}
-	
+	// Transformations	
 	get relativeTransformation () {
 		this._tempRelativeTransform.setRotationDegrees(this._rotation);
 		this._tempRelativeTransform.setTranslation(this._position);
