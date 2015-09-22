@@ -68,7 +68,7 @@ export default class Scene {
   }
 
   drawAll () {
-    if (!this._renderer.defaultMaterial.programReady) {
+    if (!this._renderer.defaultMaterial.shaderMaterial.programReady) {
       return;
     }
 

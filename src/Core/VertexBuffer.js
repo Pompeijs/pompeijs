@@ -1,6 +1,6 @@
 import { PompeiError } from '../utils/errors';
 import Vertex from './Vertex';
-import Material from '../Material/Material';
+import ShaderMaterial from '../Material/ShaderMaterial';
 
 export default class VertexBuffer {
   constructor (vertices) {
@@ -31,7 +31,7 @@ export default class VertexBuffer {
   }
 
   set material (material) {
-    if (material !== null && !(material instanceof Material)) {
+    if (material !== null && !(material instanceof ShaderMaterial)) {
       throw new PompeiError('Bad parameter. Cannot set a material that is not a Material or null. set material (material)');
     }
 

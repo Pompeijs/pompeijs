@@ -13,6 +13,7 @@ import Vertex from './Core/Vertex';
 import VertexBuffer from './Core/VertexBuffer';
 
 import Material from './Material/Material';
+import ShaderMaterial from './Material/ShaderMaterial';
 import SolidMaterial from './Material/SolidMaterial';
 
 import PostProcess from './PostProcess/PostProcess';
@@ -50,6 +51,7 @@ export default {
   VertexBuffer,
   
   Material,
+  ShaderMaterial,
   SolidMaterial,
   
   PostProcess,

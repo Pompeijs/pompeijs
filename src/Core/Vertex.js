@@ -27,6 +27,11 @@ export default class Vertex {
     this._uv = uv;
     this._color = color;
   }
+  
+  clone () {
+    let vertex = new Vertex(this._position, this._normal, this._uv, this._color);
+    return vertex;
+  }
 
   // Position
   get position () {

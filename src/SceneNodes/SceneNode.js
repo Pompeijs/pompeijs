@@ -36,6 +36,9 @@ export default class SceneNode {
 		// Animators
 		this._animators = [];
 		
+		// Materials
+		this._materials = [];
+		
 		// Temp values
 		this._tempWorldTransform = Matrix.Identity();
 		this._tempRelativeTransform = Matrix.Identity();
@@ -90,6 +93,10 @@ export default class SceneNode {
 		}
 	}
 	
+	clone () {
+		return null;
+	}
+	
 	get absoluteTransformation () {
 		return this._absoluteTransform;
 	}
@@ -109,6 +116,10 @@ export default class SceneNode {
 	
 	get children () {
 		return this._children;
+	}
+	
+	get materials () {
+		return this._materials;
 	}
 	
 	get position () {

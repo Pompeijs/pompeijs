@@ -5,15 +5,17 @@ import SceneNode from './SceneNode';
 import { Vector3 } from '../Core/Vector';
 import Mesh from '../Mesh/Mesh.js';
 
+import Material from '../Material/Material';
+
 export default class MeshSceneNode extends SceneNode {
 	constructor (name, scene, parent, mesh) {
 		super(name, scene, parent);
 		
-		this._mesh = mesh;
+		this._meshes = [mesh];
 	}
 	
-	get mesh () {
-		return this._mesh;
+	get meshes () {
+		return this._meshes;
 	}
 	
 	set mesh (mesh) {
@@ -21,23 +23,22 @@ export default class MeshSceneNode extends SceneNode {
 			throw new PompeiError('Bad argument: mesh must be a Mesh. set mesh (mesh)');
 		}
 		
-		this._mesh = mesh;
+		this._meshes = [mesh];
+		this._updateMaterials();
 	}
 	
-	setMaterial (indice, material) {
-		if (indice < 0 || indice >= this._mesh.vertexBuffers.length) {
-			throw new PompeiError('Bad parameter: indice out of range. setMaterial (indice, material)');
+	set meshes (meshes) {
+		if (!Array.isArray(meshes)) {
+			
 		}
 		
-		this._mesh.vertexBuffers[indice].material = material;
+		this._meshes = meshes;
+		this._updateMaterials();
 	}
 	
-	getMaterial (indice, material) {
-		if (indice < 0 || indice >= this._mesh.vertexBuffers.length) {
-			throw new PompeiError('Bad parameter: indice out of range. setMaterial (indice, material)');
-		}
-		
-		return this._mesh.vertexBuffers[indice].material;
+	clone () {
+		let mesh = new Mesh(this.name, this._scene, this._parent, this._meshes);
+		return mesh;
 	}
 	
 	render() {
@@ -51,11 +52,29 @@ export default class MeshSceneNode extends SceneNode {
 		this._renderer.worldMatrix.set(this._absoluteTransform);
 		
 		// Draw buffers
-		for (let i=0; i < this._mesh.vertexBuffers.length; i++) {
-			let vertexBuffer = this._mesh.vertexBuffers[i];
-			
-			this._renderer.setMaterial(vertexBuffer.material);
-			this._renderer.drawBuffer(vertexBuffer);
+		let materialIndex = 0;
+		for (let meshIndex = 0; meshIndex < this._meshes.length; meshIndex++) {
+			for (let vbIndex=0; vbIndex < this._meshes[meshIndex].vertexBuffers.length; vbIndex++) {
+				let vertexBuffer = this._meshes[meshIndex].vertexBuffers[vbIndex];
+				
+				this._renderer.setMaterial(this._materials[materialIndex]);
+				this._renderer.drawBuffer(vertexBuffer);
+				
+				materialIndex++;
+			}
+		}
+	}
+	
+	_updateMaterials() {
+		this._materials = [];
+		
+		let materialIndex = 0;
+		
+		for (let meshIndex = 0; meshIndex < this._meshes.length; meshIndex++) {
+			for (let vbIndex=0; vbIndex < this._meshes[meshIndex].vertexBuffers.length; vbIndex++) {
+				this._materials.push(new Material());
+				materialIndex++;
+			}
 		}
 	}
 }

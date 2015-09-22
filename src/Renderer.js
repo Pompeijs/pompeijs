@@ -9,6 +9,7 @@ import Matrix from './Core/Matrix';
 import VertexBuffer from './Core/VertexBuffer';
 
 import MaterialRenderer from './Rendering/MaterialRenderer';
+import Material from './Material/Material';
 import SolidMaterial from './Material/SolidMaterial';
 
 import Texture from './Textures/Texture';
@@ -36,7 +37,8 @@ export default class Renderer {
     this._viewPort = new Vector2([0, 0]);
     
     // Rendering
-    this._defaultMaterial = new SolidMaterial(this);
+    this._defaultMaterial = new Material();
+    this._defaultMaterial.shaderMaterial = new SolidMaterial(this);
     this._currentMaterial = null;
     
     this._materialRenderer = new MaterialRenderer(this._gl);
@@ -99,16 +101,17 @@ export default class Renderer {
 
   drawBuffer (vertexBuffer) {
     // Bind attributes
-    let program = this._currentMaterial.program;
+    let shaderMaterial = this._currentMaterial.shaderMaterial;
+    let program = shaderMaterial.program;
     
-    for (let i = 0; i < this._currentMaterial.attributes.length; i++) {
+    for (let i = 0; i < shaderMaterial.attributes.length; i++) {
       try {
-        let location = this._gl.getAttribLocation(program, this._currentMaterial.attributes[i]);
+        let location = this._gl.getAttribLocation(program, shaderMaterial.attributes[i]);
         
         if (location >= 0) {
-          let stride = vertexBuffer[this._currentMaterial.attributes[i] + "_stride"];
+          let stride = vertexBuffer[shaderMaterial.attributes[i] + "_stride"];
           
-          this._gl.bindBuffer(this._gl.ARRAY_BUFFER, vertexBuffer[this._currentMaterial.attributes[i]]);
+          this._gl.bindBuffer(this._gl.ARRAY_BUFFER, vertexBuffer[shaderMaterial.attributes[i]]);
           this._gl.vertexAttribPointer(location, stride, this._gl.FLOAT, false, 0, 0);
         }
       }
@@ -118,30 +121,30 @@ export default class Renderer {
     }
     
     // Bind samplers
-    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+    for (let i=0; i < shaderMaterial.textures.length; i++) {
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, shaderMaterial.textures[i].texture);
     }
     
     // Bind indices
     this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, vertexBuffer.indexBuffer);
     
     // Set constants
-    this._currentMaterial.onSetConstants(this, this._materialRenderer);
+    shaderMaterial.onSetConstants(this, this._materialRenderer);
     
     // Draw
     let is32Bits = vertexBuffer.isIndex32Bits;
     this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);  
     
     // Unbind samplers
-    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+    for (let i=0; i < shaderMaterial.textures.length; i++) {
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
     }  
   }
   
   setMaterial (material) {
-    if (!material || !material.programReady) {
+    if (!material || !material.shaderMaterial.programReady) {
       this._currentMaterial = this._defaultMaterial;
     }
     else {
@@ -149,10 +152,12 @@ export default class Renderer {
     }
     
     // Configure Material Renderer
-    this._materialRenderer.currentMaterial = this._currentMaterial;
+    this._materialRenderer.currentMaterial = this._currentMaterial.shaderMaterial;
+    
+    let shaderMaterial = this._currentMaterial.shaderMaterial;
     
     // Use program
-    this._gl.useProgram(this._currentMaterial.program);
+    this._gl.useProgram(shaderMaterial.program);
   }
   
   setRenderTarget (renderTarget, clearColor, clearBackBuffer) {
@@ -167,6 +172,7 @@ export default class Renderer {
       if (!renderTarget) {
         this._gl.viewport(0, 0, this._gl.canvas.width, this._gl.canvas.height);
         this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+        //this._gl.enable(this._gl.CULL_FACE);
         return;
       }
     }
@@ -178,14 +184,19 @@ export default class Renderer {
     this._gl.viewport(0, 0, framebuffer._width, framebuffer._height);
     
     // Clear
-    clearBackBuffer = clearBackBuffer || true;
-    if (clearBackBuffer) {
-      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
-    }
-    
     if (clearColor) {
       this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     }
+    
+    let mode = 0;
+    
+    clearBackBuffer = clearBackBuffer || true;
+    if (clearBackBuffer) {
+      mode |= this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    }
+    
+    this._gl.clear(mode);
+    //this._gl.disable(this._gl.CULL_FACE);
     
     // Set current render target
     this._currentRenderTarget = renderTarget || null;
