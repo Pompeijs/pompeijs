@@ -10,27 +10,27 @@ export default class Line {
   }
   
   constructor(start, end) {
-	  this.start = start || new Vector3([0, 0, 0]);
-	  this.end = end || new Vector3([1, 1, 1]);
+	  this.start = start || new Vector3(0, 0, 0);
+	  this.end = end || new Vector3(1, 1, 1);
   }
   
   set (other) {
-	this.start.set(other.start);
-	this.end.set(other.end);
+    this.start.set(other.start);
+    this.end.set(other.end);
   }
   
   plus (other) {
-	this.start.plus(other.start);
-	this.end.plus(other.end);
+    this.start.plus(other.start);
+    this.end.plus(other.end);
   }
   
   minus (other) {
-	this.start.minus(other.start);
-	this.end.minus(other.end);
+    this.start.minus(other.start);
+    this.end.minus(other.end);
   }
   
   getLength () {
-	return this.start.getDistanceFrom(this.end);
+	 return this.start.getDistanceFrom(this.end);
   }
   
   getLengthSQ () {

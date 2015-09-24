@@ -1,8 +1,8 @@
 import { PompeiError } from '../utils/errors';
 
-import SceneNode from './SceneNode';
+import Scene from '../Scene';
 
-import { Vector3 } from '../Core/Vector';
+import SceneNode from './SceneNode';
 import Mesh from '../Mesh/Mesh.js';
 
 import Material from '../Material/Material';
@@ -11,7 +11,15 @@ export default class MeshSceneNode extends SceneNode {
 	constructor (name, scene, parent, mesh) {
 		super(name, scene, parent);
 		
-		this.mesh = mesh;
+		this._meshes = [];
+		
+		if (mesh) {
+			this.mesh = mesh;
+		}
+	}
+	
+	get type () {
+		return Scene.SceneNodeType.MESH_SCENE_NODE;
 	}
 	
 	get meshes () {
@@ -29,7 +37,7 @@ export default class MeshSceneNode extends SceneNode {
 	
 	set meshes (meshes) {
 		if (!Array.isArray(meshes)) {
-			
+			throw new PompeiError('');
 		}
 		
 		this._meshes = meshes;
@@ -37,8 +45,7 @@ export default class MeshSceneNode extends SceneNode {
 	}
 	
 	clone () {
-		let mesh = new Mesh(this.name, this._scene, this._parent, this._meshes);
-		return mesh;
+		return null;
 	}
 	
 	render() {

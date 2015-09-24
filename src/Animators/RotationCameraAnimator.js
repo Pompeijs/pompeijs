@@ -38,22 +38,22 @@ export default class RotationCameraAnimator extends Animator {
     this._currentZoom = 10;
     this._currentMouseWheel = 0;
     
-    this._mousePosition = new Vector2();
-    this._rotateStart = new Vector2();
-    this._translateStart = new Vector2();
-    this._zoomStart = new Vector2();
+    this._mousePosition = new Vector2(0, 0);
+    this._rotateStart = new Vector2(0, 0);
+    this._translateStart = new Vector2(0, 0);
+    this._zoomStart = new Vector2(0, 0);
     
-    this._lastCameraTarget = new Vector3(camera.target);
-    this._oldTarget = new Vector3(camera.target);
+    this._lastCameraTarget = new Vector3().set(camera.target);
+    this._oldTarget = new Vector3().set(camera.target);
     
     // Temporary vectors
-    this._tempPositionTargetX = new Vector3();
-    this._tempPositionTargetY = new Vector3();
-    this._tempPosition = new Vector3();
-    this._tempTranslate = new Vector3();
-    this._tempUpVector = new Vector3();
-    this._tempTarget = new Vector3();
-    this._tempPositionTarget = new Vector3();
+    this._tempPositionTargetX = new Vector3(0, 0, 0);
+    this._tempPositionTargetY = new Vector3(0, 0, 0);
+    this._tempPosition = new Vector3(0, 0, 0);
+    this._tempTranslate = new Vector3(0, 0, 0);
+    this._tempUpVector = new Vector3(0, 0, 0);
+    this._tempTarget = new Vector3(0, 0, 0);
+    this._tempPositionTarget = new Vector3(0, 0, 0);
     
     // Configure events
     scene.renderer.canvas.addEventListener('mousedown', this._onMouseDown());

@@ -34,7 +34,7 @@ export default class Renderer {
     this._projectionMatrix = Matrix.Identity();
     
     // Viewport
-    this._viewPort = new Vector2([0, 0]);
+    this._viewPort = new Vector2(0, 0);
     
     // Rendering
     this._defaultMaterial = new Material();
@@ -51,6 +51,10 @@ export default class Renderer {
     
     // Textures
     this._textures = [];
+    this._defaultTexture = null;
+    this.createCustomTexture(new Dimension2(1, 1), (texture) => {
+      this._defaultTexture = texture;
+    });
   }
 
   resize(size) {
@@ -106,6 +110,10 @@ export default class Renderer {
     
     for (let i = 0; i < shaderMaterial.attributes.length; i++) {
       try {
+        if (!vertexBuffer[shaderMaterial.attributes[i]]) {
+          continue;
+        }
+        
         let location = this._gl.getAttribLocation(program, shaderMaterial.attributes[i]);
         
         if (location >= 0) {
@@ -121,9 +129,16 @@ export default class Renderer {
     }
     
     // Bind samplers
-    for (let i=0; i < this._currentMaterial.textures.length; i++) {
-      this._gl.activeTexture(this._gl["TEXTURE" + i]);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+    const textureLength = this._currentMaterial.textures.length;
+    if (textureLength === 0) {
+      this._gl.activeTexture(this._gl.TEXTURE0);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, this._defaultTexture ? this._defaultTexture.texture : null);
+    }
+    else {
+      for (let i=0; i < this._currentMaterial.textures.length; i++) {
+        this._gl.activeTexture(this._gl["TEXTURE" + i]);
+        this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+      }
     }
     
     // Bind indices
@@ -137,7 +152,7 @@ export default class Renderer {
     this._gl.drawElements(this._gl.TRIANGLES, vertexBuffer.indices.length, is32Bits ? this._gl.UNSIGNED_INT : this._gl.UNSIGNED_SHORT, 0);  
     
     // Unbind samplers
-    for (let i=0; i < this._currentMaterial.textures.length; i++) {
+    for (let i=0; i < this._currentMaterial.textures.length + (textureLength > 0 ? 0 : 1); i++) {
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
     }  
@@ -158,6 +173,9 @@ export default class Renderer {
       shaderMaterial = this._defaultMaterial.shaderMaterial;
     }
     
+    // Pre render
+    shaderMaterial.onPreRender(this);
+    
     this._materialRenderer.currentShaderMaterial = shaderMaterial;
     
     // Use program
@@ -171,7 +189,6 @@ export default class Renderer {
       this._gl.disable(this._gl.CULL_FACE);
     }
     this._gl.cullFace(this._currentMaterial.backFaceCulling ? this._gl.BACK : this._gl.FRONT);
-    
   }
   
   setRenderTarget (renderTarget, clearColor, clearBackBuffer) {
@@ -227,6 +244,10 @@ export default class Renderer {
       
       material.uniformsLocations[material.uniforms[i]] = location;
     }
+  }
+  
+  removeProgram (program) {
+    this._gl.deleteProgram(program);
   }
   
   createProgram (vertexCode, pixelCode, attributes, uniforms, defines) {
@@ -319,8 +340,22 @@ export default class Renderer {
     return this._textures[this._textures.length - 1];
   }
   
+  createCustomTexture (size, onLoaded) {
+    let canvas = document.createElement('canvas');
+    let canvasContext = canvas.getContext('2d');
+    
+    canvas.width = size.width;
+    canvas.height = size.height;
+    canvasContext.rect(0, 0, size.width, size.height);
+    canvasContext.fillStyle = 'white';
+    canvasContext.fill();
+    
+    return this.createTexture(canvas.toDataURL(), onLoaded);
+  }
+  
   createTexture (url, onLoaded, force) {
     // Check if exists
+    force = force || false;
     if (!force) {
       for (let i=0; i < this._textures.length; i++) {
         if (this._textures[i].url === url) {
@@ -331,6 +366,7 @@ export default class Renderer {
     
     // Create texture
     let image = new Image();
+    let texture = new Texture(this, url);
     
     image.onload = () => {
       // If image not power of two, create a canvas to render
@@ -350,23 +386,27 @@ export default class Renderer {
       }
       
       // Create and configure WebGL texture
-      let texture = this._gl.createTexture();
-      texture._baseWidth = image.width;
-      texture._baseHeight = image.height;
-      texture._width = image.width;
-      texture._height = image.height;
+      let glTexture = this._gl.createTexture();
+      glTexture._baseWidth = image.width;
+      glTexture._baseHeight = image.height;
+      glTexture._width = image.width;
+      glTexture._height = image.height;
       
-      this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
+      this._gl.bindTexture(this._gl.TEXTURE_2D, glTexture);
       this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
       this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, canvas === null ? image : canvas);
       this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
       this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
       this._gl.bindTexture(this._gl.TEXTURE_2D, null);
       
-      this._textures.push(new Texture(this, url, canvas === null ? image : canvas, texture));
+      texture._texture = glTexture;
+      texture._image = canvas ? canvas : image;
+      texture._isCanvas = canvas !== null;
+      
+      this._textures.push(texture);
       
       if (onLoaded) {
-        onLoaded(this._textures[this._textures.length - 1]);
+        onLoaded(texture);
       }
     };
     
@@ -375,6 +415,8 @@ export default class Renderer {
     };
     
     image.src = url;
+    
+    return texture;
   }
   
   createVertexBuffer(vertexBuffer) {
@@ -473,6 +515,10 @@ export default class Renderer {
   
   get materialRenderer () {
     return this._materialRenderer;
+  }
+  
+  get currentMaterial () {
+    return this._currentMaterial;
   }
   
   // Transformations

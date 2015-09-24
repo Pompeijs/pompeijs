@@ -3,10 +3,13 @@ import Renderer from '../Renderer';
 
 import Core from '../Core/Core.js';
 
+import Color from '../Core/Color';
+
 export default class Material {
   constructor (other) {
-    this._shaderMaterial = null;
-    this._backFaceCulling = true;
+    this.shaderMaterial = null;
+    this.backFaceCulling = true;
+    this.shininess = 1;
     
     this._textures = [];
   }
@@ -17,14 +20,6 @@ export default class Material {
   
   setTexture (indice, texture) {
     this._textures[indice] = texture;
-  }
-  
-  get shaderMaterial () {
-    return this._shaderMaterial;
-  }
-  
-  set shaderMaterial (shaderMaterial) {
-    this._shaderMaterial = shaderMaterial;
   }
   
   get textures () {

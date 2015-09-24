@@ -18,13 +18,26 @@ export default class SolidMaterial extends ShaderMaterial {
     );
     
     this.compile();
+    
+    this._node = null;
   }
   
-  // Can be overrided
+  onSetNode (node) {
+    this._node = node;
+  }
+  
   onSetConstants (renderer, service) {
 	  super.onSetConstants(renderer, service);
     
     // Textures
     service.setInt("u_diffuse", 0);
+    
+    // Lights
+    if (!this._node) {
+      return;
+    }
+    
+    let scene = this._node.scene;
+    
   }
 }

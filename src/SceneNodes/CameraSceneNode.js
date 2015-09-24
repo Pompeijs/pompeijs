@@ -1,4 +1,6 @@
 import { PompeiError } from '../utils/errors';
+
+import Scene from '../Scene';
 import SceneNode from './SceneNode';
 
 import Matrix from '../Core/Matrix';
@@ -16,8 +18,8 @@ export default class CameraSceneNode extends SceneNode {
     this._viewMatrix = Matrix.Identity();
     this._projectionMatrix = Matrix.Identity();
     
-    this._target = new Vector3([0, 0, 0]);
-    this._upVector = new Vector3([0, 1, 0]);
+    this._target = new Vector3(0, 0, 0);
+    this._upVector = new Vector3(0, 1, 0);
     
     this._fov = Math.PI / 2.5;
     this._aspect = scene.renderer.canvas.width / scene.renderer.canvas.height;
@@ -25,8 +27,8 @@ export default class CameraSceneNode extends SceneNode {
     this._zFar = 3000.0;
     
     // Temporary vectors
-    this._tempUpVector = new Vector3();
-    this._tempTarget = new Vector3();
+    this._tempUpVector = new Vector3(0, 0, 0);
+    this._tempTarget = new Vector3(0, 0, 0);
     
     // Finish
     this.buildProjectionMatrix();
@@ -37,6 +39,10 @@ export default class CameraSceneNode extends SceneNode {
       this.buildProjectionMatrix();
     });
   }
+  
+  get type () {
+		return Scene.SceneNodeType.CAMERA_SCENE_NODE;
+	}
   
   render () {
     super.render();
@@ -68,6 +74,7 @@ export default class CameraSceneNode extends SceneNode {
   
   set aspect (aspect) {
     this._aspect = aspect;
+    this.buildProjectionMatrix();
   }
   
   get target () {
@@ -77,7 +84,7 @@ export default class CameraSceneNode extends SceneNode {
   set target (target) {
     this._target.set(target);
     
-    let toTarget = new Vector3(this._target).minus(this._position);
+    let toTarget = new Vector3().set(this._target).minus(this._position);
 		this.rotation = toTarget.getHorizontalAngle();
   }
   

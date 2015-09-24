@@ -3,6 +3,8 @@ import { PompeiError } from '../utils/errors';
 import { Vector2, Vector3 } from '../Core/Vector';
 import Matrix from '../Core/Matrix';
 
+import Scene from '../Scene';
+
 import Animator from '../Animators/Animator';
 
 export default class SceneNode {
@@ -11,6 +13,7 @@ export default class SceneNode {
 			throw new PompeiError('Bad parameters: name and scene must be provided. constructor(name, scene, parent)');
 		}
 		
+		this.id = '';
 		this.name = name;
 		this.isVisible = true;
 		
@@ -27,9 +30,9 @@ export default class SceneNode {
 		this._children = [];
 		
 		// Transformations
-		this._position = new Vector3();
-		this._rotation = new Vector3();
-		this._scale = new Vector3([1, 1, 1]);
+		this._position = new Vector3(0, 0, 0);
+		this._rotation = new Vector3(0, 0, 0);
+		this._scale = new Vector3(1, 1, 1);
 		
 		this._absoluteTransform = Matrix.Identity();
 		
@@ -95,6 +98,16 @@ export default class SceneNode {
 	
 	clone () {
 		return null;
+	}
+	
+	// To be overidded
+	get type () {
+		return Scene.SceneNodeType.UNKNOWN;
+	}
+	
+	// Getters
+	get scene () {
+		return this._scene;
 	}
 	
 	get absoluteTransformation () {

@@ -85,6 +85,10 @@ export default class ShaderMaterial {
     this._renderer.configureMaterialUniforms(this);
   }
   
+  remove () {
+    
+  }
+  
   // Can be overrided
   onSetConstants (renderer, service) {
     let worldViewProjection = Matrix.Identity();
@@ -95,6 +99,10 @@ export default class ShaderMaterial {
       
     service.setMatrix('u_worldViewProjection', worldViewProjection);
   }
+  
+  // To be overidded
+  onPreRender (renderer)
+  { }
   
   _createProgram (vertexCode, pixelCode) {
     let defines = '';

@@ -41,6 +41,12 @@ export default class Matrix {
     return this;
   }
   
+  fromArray(array) {
+    for (let i=0; i < 16; i++) {
+      this.m[i] = array[i];
+    }
+  }
+  
   makeIdentity() {
     let m = this.m;
     
@@ -137,9 +143,9 @@ export default class Matrix {
   }
   
   buildCameraLookAtMatrix(position, target, up) {
-    let zaxis = new Vector3(target).minus(position).normalize();
-		let xaxis = new Vector3(up).cross(zaxis).normalize();
-    let yaxis = new Vector3(zaxis).cross(xaxis);
+    let zaxis = new Vector3().set(target).minus(position).normalize();
+		let xaxis = new Vector3().set(up).cross(zaxis).normalize();
+    let yaxis = new Vector3().set(zaxis).cross(xaxis);
     let m = this.m;
 
 		m[0] = xaxis.x;
@@ -173,7 +179,7 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([this.m[12], this.m[13], this.m[14]]);
+    return new Vector3(this.m[12], this.m[13], this.m[14]);
   }
 
   setTranslation(translation) {
@@ -215,7 +221,7 @@ export default class Matrix {
         return result;
       }
 
-      return new Vector3([x, y, z]);
+      return new Vector3(x, y, z);
     }
 
     // We have to do the full calculation.
@@ -231,11 +237,11 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([x, y, z]);
+    return new Vector3(x, y, z);
   }
 
   setRotationDegrees (rotation) {
-    this.setRotation(new Vector3(rotation).multiplyScalar(Core.DegToRad()));
+    this.setRotation(new Vector3().set(rotation).multiplyScalar(Core.DegToRad()));
   }
 
   setRotation (rotation) {
@@ -290,7 +296,7 @@ export default class Matrix {
       scale.y = -scale.y;
     }
 
-    let invScale = new Vector3([1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z]);
+    let invScale = new Vector3(1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z);
 
     let Y = -Math.asin(Core.Clamp(mat[2] * invScale.x, -1.0, 1.0));
     let C = Math.cos(Y);
@@ -334,6 +340,6 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([X, Y, Z]);
+    return new Vector3(X, Y, Z);
   }
 }

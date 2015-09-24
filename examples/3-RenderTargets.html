@@ -177,7 +177,7 @@
         var node = new Pompei.MeshSceneNode("cube", scene, null, mesh);
         node.scale.set([1, 1, 1]);
         
-        var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
+        var clearColor = new Pompei.Color(0.0, 0.0, 0.0, 1.0);
         
         renderer.createTexture("empty.jpg", function(texture) {
             node.materials[0].addTexture(texture);
@@ -188,7 +188,7 @@
         var screenquad = new Pompei.ScreenQuad("quad", scene);
         screenquad.material.shaderMaterial = pp;
         
-        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2([512, 512]), true);
+        var rt = renderer.createRenderTarget("testrt", new Pompei.Dimension2(512, 512), true);
         screenquad.material.addTexture(rt);
         
         function update() {

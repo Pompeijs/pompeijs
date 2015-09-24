@@ -15,6 +15,13 @@ export default class Mesh {
     this._vertexBuffers = vertexBuffers;
     this._scene = scene;
     this._renderer = scene.renderer;
+    
+    // Properties
+    this.name = '';
+    this.id = '';
+    
+    // Add mesh to mesh cache
+    scene.meshCache.addMesh(this);
   }
   
   get vertexBuffers () {

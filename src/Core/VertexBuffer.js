@@ -58,10 +58,6 @@ export default class VertexBuffer {
   }
 
   set indices (indices) {
-    if (!Array.isArray(indices)) {
-      throw new PompeiError('Bad parameter: indices is not an array. set indices (indices)');
-    }
-
     this._indices = indices;
   }
 

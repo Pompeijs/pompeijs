@@ -1,15 +1,11 @@
 import { PompeiError } from '../utils/errors';
 
 export default class Color {
-  constructor (other) {
-    this.r = 0.0;
-    this.g = 0.0;
-    this.b = 0.0;
-    this.a = 0.0;
-
-    if (other) {
-      this.set(other);
-    }
+  constructor (r, g, b, a) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
   }
 
   toArray () {

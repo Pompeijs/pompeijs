@@ -2,6 +2,10 @@ import { PompeiError } from '../utils/errors';
 
 import Scene from '../Scene';
 
+import { Vector3 } from '../Core/Vector';
+import Plane from '../Core/Plane';
+
+import Vertex from '../Core/Vertex';
 import VertexBuffer from '../Core/VertexBuffer';
 import Mesh from './Mesh';
 
@@ -89,18 +93,21 @@ export default class GeometryCreator {
     vertexBuffer.indices = [
       0,2,1,   0,3,2,
     ];
+    
     vertexBuffer.positions = [
       -1, 0, -1,
       -1, 0, 1,
       1, 0, 1,
       1, 0, -1,
     ];
+    
     vertexBuffer.normals = [
-      0, 0, -1,
-      0, 0, -1,
-      0, 0, -1,
-      0, 0, -1,
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
+      0, 1, 0,
     ];
+    
     vertexBuffer.uvs = [
       0, 1,
 	    1, 1,

@@ -14,7 +14,9 @@
 		"src/Scene.js",
 		
 		"src/Rendering/MaterialRenderer.js",
-
+		
+		"src/Core/Plane.js",
+		"src/Core/Quaternion.js",
 		"src/Core/Matrix.js",
 		"src/Core/Color.js",
 		"src/Core/Vector.js",
@@ -23,12 +25,14 @@
 		"src/Core/VertexBuffer.js",
 		"src/Core/Core.js",
 		
+		"src/Mesh/MeshCache.js",
 		"src/Mesh/GeometryCreator.js",
 		"src/Mesh/Mesh.js",
 		
 		"src/SceneNodes/SceneNode.js",
 		"src/SceneNodes/MeshSceneNode.js",
 		"src/SceneNodes/CameraSceneNode.js",
+		"src/SceneNodes/LightSceneNode.js",
 		
 		"src/Animators/Animator.js",
 		"src/Animators/RotationAnimator.js",
@@ -37,11 +41,15 @@
 		"src/Material/Material.js",
 		"src/Material/ShaderMaterial.js",
 		"src/Material/SolidMaterial.js",
+		"src/Material/StandardMaterial.js",
 		
 		"src/Textures/Texture.js",
 		"src/Textures/RenderTargetTexture.js",
 		
 		"src/PostProcess/ScreenQuad.js",
-		"src/PostProcess/PostProcess.js"
+		"src/PostProcess/PostProcess.js",
+		
+		"src/Loaders/Loader.js",
+		"src/Loaders/GlTFFileLoader.js"
 	]
 }
