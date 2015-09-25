@@ -6,7 +6,7 @@ import SceneNode from './SceneNode';
 import Color from '../Core/Color';
 
 export default class LightSceneNode extends SceneNode {
-	constructor (name, scene, parent, mesh) {
+	constructor (name, scene, parent) {
 		super(name, scene, parent);
 		scene.lights.push(this);
 		

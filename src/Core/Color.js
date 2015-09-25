@@ -25,6 +25,8 @@ export default class Color {
       this.b = other[2];
       this.a = other[3];
     }
+    
+    return this;
   }
 
   fromArray (other) {
@@ -32,6 +34,8 @@ export default class Color {
     this.g = other[1];
     this.b = other[2];
     this.a = other[3];
+    
+    return this;
   }
 
   plus (other) {
@@ -39,6 +43,8 @@ export default class Color {
     this.g += other.g;
     this.b += other.b;
     this.a += other.a;
+    
+    return this;
   }
 
   minus (other) {
@@ -46,6 +52,8 @@ export default class Color {
     this.g -= other.g;
     this.b -= other.b;
     this.a -= other.a;
+    
+    return this;
   }
 
   multiply (other) {
@@ -53,5 +61,7 @@ export default class Color {
     this.g *= other.g;
     this.b *= other.b;
     this.a *= other.a;
+    
+    return this;
   }
 }

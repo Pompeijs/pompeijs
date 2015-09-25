@@ -185,6 +185,10 @@ export default class SceneNode {
 		return this._tempRelativeTransform;
 	}
 	
+	get worldMatrix () {
+		return this.absoluteTransformation;
+	}
+	
 	set worldMatrix (worldMatrix) {
 		worldMatrix.getScale(this._scale);
 		worldMatrix.getRotationDegrees(this._rotation);

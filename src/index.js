@@ -37,7 +37,7 @@ import Texture from './Textures/Texture';
 import RenderTargetTexture from './Textures/RenderTargetTexture';
 
 import Loader from './Loaders/Loader';
-import GlTFFileLoader from './Loaders/GlTFFileLoader';
+import GlTFFileLoader from './Loaders/glTF/GlTFFileLoader';
 
 import { PompeiError, WebGLSupportError } from './utils/errors';
 

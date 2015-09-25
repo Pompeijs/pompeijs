@@ -50,6 +50,9 @@
 		"src/PostProcess/PostProcess.js",
 		
 		"src/Loaders/Loader.js",
-		"src/Loaders/GlTFFileLoader.js"
+		"src/Loaders/Tokenizer.js",
+		"src/Loaders/glTF/GlTFFileLoader.js",
+		"src/Loaders/glTF/GlTFShadersSupport.js",
+		"src/Loaders/glTF/GlTFMaterial.js"
 	]
 }

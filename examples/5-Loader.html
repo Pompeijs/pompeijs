@@ -34,7 +34,7 @@
         var renderer = device.renderer;
         
         var camera = new Pompei.CameraSceneNode("camera", scene, null);
-        camera.position.set([10, 10, 10]);
+        //camera.position.set([10, 10, 10]);
         camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
         
         var lights = [];
@@ -53,6 +53,14 @@
         lights[2].diffuseColor.set([0, 0, 1, 1]);
         lights[3].diffuseColor.set([1, 1, 1, 1]);
         
+        var plane = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createPlaneMesh(30, 20));
+        plane.materials[0].backFaceCulling = false;
+        plane.materials[0].shaderMaterial = material;
+        plane.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
+        plane.materials[0].addTexture(renderer.createTexture("floor_bump.png"));
+        plane.materials[0].addTexture(renderer.createTexture("floor_specular.png"));
+        
+        
         var material = new Pompei.StandardMaterial(scene);
         var clearColor = new Pompei.Color(0.0, 0.0, 0.0, 1.0);
 		
@@ -63,21 +71,43 @@
             
             for (var i=0; i < nodes.length; i++) {
                 for (var j=0; j < nodes[i].materials.length; j++) {
+                    /*
                     nodes[i].materials[j].addTexture(renderer.createTexture("floor_diffuse.png"));
                     nodes[i].materials[j].addTexture(renderer.createTexture("floor_bump.png"));
                     nodes[i].materials[j].addTexture(renderer.createTexture("floor_specular.png"));
                     nodes[i].materials[j].shaderMaterial = material;
+                    */
                     
                     nodes[i].materials[j].backFaceCulling = false;
                 }
             }
         });
         
+        var delta = 0;
         function update() {
             window.requestAnimationFrame(update);
+            
+            lights[0].position.x = 20 * Math.cos(delta);
+            lights[0].position.y = 10;
+            lights[0].position.z = 20 * Math.sin(delta);
+            
+            lights[1].position.x = 20 * Math.sin(delta);
+            lights[1].position.y = 10;
+            lights[1].position.z = 20 * Math.cos(delta);
+            
+            lights[2].position.x = -20 * Math.cos(delta);
+            lights[2].position.y = 10;
+            lights[2].position.z = -20 * Math.sin(delta);
+            
+            lights[3].position.x = -20 * Math.sin(delta);
+            lights[3].position.y = 10;
+            lights[3].position.z = -20 * Math.cos(delta);
+            
             renderer.begin(clearColor, true, true);
             scene.drawAll();
             renderer.end();
+            
+            delta += 0.01;
         };
         update();
         

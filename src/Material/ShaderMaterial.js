@@ -23,7 +23,8 @@ export default class ShaderMaterial {
     }
 
     this._renderer = renderer;
-
+    this._renderer.materialRenderer.shaderMaterials.push(this);
+    
     this._vertexPath = vertexPath;
     this._pixelPath = pixelPath;
 
@@ -36,6 +37,9 @@ export default class ShaderMaterial {
     
     this._program = null;
     this._uniformsLocations = { };
+    
+    // Public members
+    this.id = '';
   }
 
   get renderer () {

@@ -37,11 +37,11 @@ export default class Renderer {
     this._viewPort = new Vector2(0, 0);
     
     // Rendering
+    this._materialRenderer = new MaterialRenderer(this._gl);
+    
     this._defaultMaterial = new Material();
     this._defaultMaterial.shaderMaterial = new SolidMaterial(this);
     this._currentMaterial = null;
-    
-    this._materialRenderer = new MaterialRenderer(this._gl);
     
     this._currentRenderTarget = null;
     
@@ -353,14 +353,23 @@ export default class Renderer {
     return this.createTexture(canvas.toDataURL(), onLoaded);
   }
   
+  getTexture (url) {
+    for (let i=0; i < this._textures.length; i++) {
+      if (this._textures[i].url === url) {
+        return this._textures[i];
+      }
+    }
+    
+    return null;
+  }
+  
   createTexture (url, onLoaded, force) {
     // Check if exists
     force = force || false;
     if (!force) {
-      for (let i=0; i < this._textures.length; i++) {
-        if (this._textures[i].url === url) {
-          return this._textures[i];
-        }
+      let texture = this.getTexture(url);
+      if (texture) {
+        return texture;
       }
     }
     
@@ -403,8 +412,6 @@ export default class Renderer {
       texture._image = canvas ? canvas : image;
       texture._isCanvas = canvas !== null;
       
-      this._textures.push(texture);
-      
       if (onLoaded) {
         onLoaded(texture);
       }
@@ -415,6 +422,8 @@ export default class Renderer {
     };
     
     image.src = url;
+    
+    this._textures.push(texture);
     
     return texture;
   }
