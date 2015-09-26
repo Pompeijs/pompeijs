@@ -3,6 +3,11 @@ import { Vector3 } from './Vector';
 import Core from './Core';
 
 export default class Matrix {
+  static get TempMatrix () {
+    this._tempMatrix = this._tempMatrix || new Matrix();
+    return this._tempMatrix;
+  }
+  
   constructor(array) {
     this.m = new Float32Array(16);
 
@@ -39,6 +44,27 @@ export default class Matrix {
     }
     
     return this;
+  }
+  
+  getAsMatrix3x3() {
+      return new Float32Array([
+          this.m[0], this.m[1], this.m[2],
+          this.m[4], this.m[5], this.m[6],
+          this.m[8], this.m[9], this.m[10]
+      ]);
+  }
+  
+  getAsMatrix2x2() {
+      return new Float32Array([
+          this.m[0], this.m[1],
+          this.m[4], this.m[5]
+      ]);
+  }
+  
+  fromArray(array) {
+    for (let i=0; i < 16; i++) {
+      this.m[i] = array[i];
+    }
   }
   
   makeIdentity() {
@@ -137,9 +163,9 @@ export default class Matrix {
   }
   
   buildCameraLookAtMatrix(position, target, up) {
-    let zaxis = new Vector3(target).minus(position).normalize();
-		let xaxis = new Vector3(up).cross(zaxis).normalize();
-    let yaxis = new Vector3(zaxis).cross(xaxis);
+    let zaxis = new Vector3().set(target).minus(position).normalize();
+		let xaxis = new Vector3().set(up).cross(zaxis).normalize();
+    let yaxis = new Vector3().set(zaxis).cross(xaxis);
     let m = this.m;
 
 		m[0] = xaxis.x;
@@ -173,13 +199,13 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([this.m[12], this.m[13], this.m[14]]);
+    return new Vector3(this.m[12], this.m[13], this.m[14]);
   }
 
   setTranslation(translation) {
-    this.m[12] = -translation.x;
-    this.m[13] = -translation.y;
-    this.m[14] = -translation.z;
+    this.m[12] = translation.x;
+    this.m[13] = translation.y;
+    this.m[14] = translation.z;
 
     return this;
   }
@@ -215,16 +241,13 @@ export default class Matrix {
         return result;
       }
 
-      return new Vector3([x, y, z]);
+      return new Vector3(x, y, z);
     }
 
     // We have to do the full calculation.
-    x =
-      this.m[0] * this.m[0] + this.m[1] * this.m[1] + this.m[2] * this.m[2];
-    y =
-      this.m[4] * this.m[4] + this.m[5] * this.m[5] + this.m[6] * this.m[6];
-    z =
-      this.m[8] * this.m[8] + this.m[9] * this.m[9] + this.m[10] * this.m[10];
+    x = this.m[0] * this.m[0] + this.m[1] * this.m[1] + this.m[2] * this.m[2];
+    y = this.m[4] * this.m[4] + this.m[5] * this.m[5] + this.m[6] * this.m[6];
+    z = this.m[8] * this.m[8] + this.m[9] * this.m[9] + this.m[10] * this.m[10];
 
     if (result) {
       result.x = x;
@@ -234,11 +257,11 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([x, y, z]);
+    return new Vector3(x, y, z);
   }
 
   setRotationDegrees (rotation) {
-    this.setRotation(new Vector3(rotation).multiplyScalar(Core.DegToRad()));
+    this.setRotation(new Vector3().set(rotation).multiplyScalar(Core.DegToRad()));
   }
 
   setRotation (rotation) {
@@ -293,7 +316,7 @@ export default class Matrix {
       scale.y = -scale.y;
     }
 
-    let invScale = new Vector3([1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z]);
+    let invScale = new Vector3(1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z);
 
     let Y = -Math.asin(Core.Clamp(mat[2] * invScale.x, -1.0, 1.0));
     let C = Math.cos(Y);
@@ -337,6 +360,94 @@ export default class Matrix {
       return result;
     }
 
-    return new Vector3([X, Y, Z]);
+    return new Vector3(X, Y, Z);
+  }
+  
+  inverse () {
+    let l1 = this.m[0];
+    let l2 = this.m[1];
+    let l3 = this.m[2];
+    let l4 = this.m[3];
+    let l5 = this.m[4];
+    let l6 = this.m[5];
+    let l7 = this.m[6];
+    let l8 = this.m[7];
+    let l9 = this.m[8];
+    let l10 = this.m[9];
+    let l11 = this.m[10];
+    let l12 = this.m[11];
+    let l13 = this.m[12];
+    let l14 = this.m[13];
+    let l15 = this.m[14];
+    let l16 = this.m[15];
+    let l17 = (l11 * l16) - (l12 * l15);
+    let l18 = (l10 * l16) - (l12 * l14);
+    let l19 = (l10 * l15) - (l11 * l14);
+    let l20 = (l9 * l16) - (l12 * l13);
+    let l21 = (l9 * l15) - (l11 * l13);
+    let l22 = (l9 * l14) - (l10 * l13);
+    let l23 = ((l6 * l17) - (l7 * l18)) + (l8 * l19);
+    let l24 = -(((l5 * l17) - (l7 * l20)) + (l8 * l21));
+    let l25 = ((l5 * l18) - (l6 * l20)) + (l8 * l22);
+    let l26 = -(((l5 * l19) - (l6 * l21)) + (l7 * l22));
+    let l27 = 1.0 / ((((l1 * l23) + (l2 * l24)) + (l3 * l25)) + (l4 * l26));
+    let l28 = (l7 * l16) - (l8 * l15);
+    let l29 = (l6 * l16) - (l8 * l14);
+    let l30 = (l6 * l15) - (l7 * l14);
+    let l31 = (l5 * l16) - (l8 * l13);
+    let l32 = (l5 * l15) - (l7 * l13);
+    let l33 = (l5 * l14) - (l6 * l13);
+    let l34 = (l7 * l12) - (l8 * l11);
+    let l35 = (l6 * l12) - (l8 * l10);
+    let l36 = (l6 * l11) - (l7 * l10);
+    let l37 = (l5 * l12) - (l8 * l9);
+    let l38 = (l5 * l11) - (l7 * l9);
+    let l39 = (l5 * l10) - (l6 * l9);
+
+    this.m[0] = l23 * l27;
+    this.m[4] = l24 * l27;
+    this.m[8] = l25 * l27;
+    this.m[12] = l26 * l27;
+    this.m[1] = -(((l2 * l17) - (l3 * l18)) + (l4 * l19)) * l27;
+    this.m[5] = (((l1 * l17) - (l3 * l20)) + (l4 * l21)) * l27;
+    this.m[9] = -(((l1 * l18) - (l2 * l20)) + (l4 * l22)) * l27;
+    this.m[13] = (((l1 * l19) - (l2 * l21)) + (l3 * l22)) * l27;
+    this.m[2] = (((l2 * l28) - (l3 * l29)) + (l4 * l30)) * l27;
+    this.m[6] = -(((l1 * l28) - (l3 * l31)) + (l4 * l32)) * l27;
+    this.m[10] = (((l1 * l29) - (l2 * l31)) + (l4 * l33)) * l27;
+    this.m[14] = -(((l1 * l30) - (l2 * l32)) + (l3 * l33)) * l27;
+    this.m[3] = -(((l2 * l34) - (l3 * l35)) + (l4 * l36)) * l27;
+    this.m[7] = (((l1 * l34) - (l3 * l37)) + (l4 * l38)) * l27;
+    this.m[11] = -(((l1 * l35) - (l2 * l37)) + (l4 * l39)) * l27;
+    this.m[15] = (((l1 * l36) - (l2 * l38)) + (l3 * l39)) * l27;
+
+    return this;
+  }
+  
+  transpose () {
+    let m = this.m;
+    let o = Matrix.TempMatrix.set(this).m;
+    
+    m[ 0] = o[ 0];
+		m[ 1] = o[ 4];
+		m[ 2] = o[ 8];
+		m[ 3] = o[12];
+
+		m[ 4] = o[ 1];
+		m[ 5] = o[ 5];
+		m[ 6] = o[ 9];
+		m[ 7] = o[13];
+
+		m[ 8] = o[ 2];
+		m[ 9] = o[ 6];
+		m[ 0] = o[10];
+		m[ 1] = o[14];
+
+		m[ 2] = o[ 3];
+		m[ 3] = o[ 7];
+		m[ 4] = o[11];
+		m[ 5] = o[15];
+    
+    return this;
   }
 }

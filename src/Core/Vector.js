@@ -4,18 +4,14 @@ export class Vector3 {
   static get Zero () {
     // UGLY WAY TO GO FAST
     // Works as a static member for Vector3 that is a Zero Vector (x=0, y=0, z=0)
-    this._zeroVector = this._zeroVector || new Vector3([0, 0, 0]);
+    this._zeroVector = this._zeroVector || new Vector3(0, 0, 0);
     return this._zeroVector;
   }
   
-  constructor (other) {
-    this.x = 0.0;
-    this.y = 0.0;
-    this.z = 0.0;
-
-    if (other) {
-      this.set(other);
-    }
+  constructor (x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
   }
 
   toArray () {
@@ -37,7 +33,7 @@ export class Vector3 {
   }
   
   clone () {
-    return new Vector3([this.x, this.y, this.z]);
+    return new Vector3(this.x, this.y, this.z);
   }
 
   plus (other) {
@@ -79,6 +75,12 @@ export class Vector3 {
     
     return this;
   }
+  
+  divideScalar (scalar) {
+    this.x /= scalar;
+    this.y /= scalar;
+    this.z /= scalar;
+  }
 
   dot (other) {
     return this.x * other.x + this.y * other.y + this.z * other.z;
@@ -89,7 +91,7 @@ export class Vector3 {
     let y = this.z * other.x - this.x * other.z;
     let z = this.x * other.y - this.y * other.x;
 
-    return new Vector3([x, y, z]);
+    return new Vector3(x, y, z);
   }
 
   length () {
@@ -117,7 +119,7 @@ export class Vector3 {
   }
   
   getHorizontalAngle () {
-    let angle = new Vector3();
+    let angle = new Vector3(0, 0, 0);
 
     let tmp = (Math.atan2(this.x, this.z) * Core.RadToDeg());
     angle.y = tmp;
@@ -189,13 +191,9 @@ export class Vector3 {
 }
 
 export class Vector2 {
-  constructor(other) {
-    this.x = 0.0;
-    this.y = 0.0;
-
-    if (other) {
-      this.set(other);
-    }
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   toArray () {
@@ -236,5 +234,27 @@ export class Vector2 {
   divide (other) {
     this.x /= other.x;
     this.y /= other.y;
+  }
+}
+
+export class Dimension2 extends Vector2 {
+  constructor (width, height) {
+    super(width, height);
+  }
+  
+  set width (width) {
+    this.x = width;
+  }
+  
+  get width () {
+    return this.x;
+  }
+  
+  set height (height) {
+    this.y = height;
+  }
+  
+  get height () {
+    return this.y;
   }
 }

@@ -1,13 +1,16 @@
 import { PompeiError } from '../utils/errors';
 
 import Renderer from '../Renderer';
-import Material from './Material';
+import ShaderMaterial from './ShaderMaterial';
 
-export default class SolidMaterial extends Material {
+import vertexShader from '../Shaders/Solid.vertex.glsl';
+import pixelShader from '../Shaders/Solid.fragment.glsl';
+
+export default class SolidMaterial extends ShaderMaterial {
   constructor (renderer) {
     super(renderer,
-      'Shaders/Solid.vertex.glsl',
-      'Shaders/Solid.fragment.glsl',
+      vertexShader,
+      pixelShader,
       ["a_position", "a_uv"],
       ["u_worldViewProjection", "u_diffuse"],
       [],
@@ -15,13 +18,26 @@ export default class SolidMaterial extends Material {
     );
     
     this.compile();
+    
+    this._node = null;
   }
   
-  // Can be overrided
+  onSetNode (node) {
+    this._node = node;
+  }
+  
   onSetConstants (renderer, service) {
 	  super.onSetConstants(renderer, service);
     
     // Textures
     service.setInt("u_diffuse", 0);
+    
+    // Lights
+    if (!this._node) {
+      return;
+    }
+    
+    let scene = this._node.scene;
+    
   }
 }

@@ -174,10 +174,10 @@
         var node = new Pompei.MeshSceneNode("cube", scene, null, mesh);
         node.scale.set([1, 1, 1]);
         
-        var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
+        var clearColor = new Pompei.Color(0.0, 0.0, 0.0, 1.0);
         
-        renderer.createTexture("empty.jpg", (texture) => {
-            renderer.defaultMaterial.addTexture(texture);
+        renderer.createTexture("empty.jpg", function(texture) {
+            node.materials[0].addTexture(texture);
         });
         
         function update() {

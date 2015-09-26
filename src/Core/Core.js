@@ -21,22 +21,62 @@ export default class Core {
     
     return count;
   }
+  
+  static isBase64 (uri) {
+    return uri.length < 5 ? false : uri.substr(0, 5) === "data:";
+  }
+  
+  static decodeArrayBuffer (base64) {
+        let decodedString = atob(base64);
+        let bufferLength = decodedString.length;
+        let arraybuffer = new Uint8Array(new ArrayBuffer(bufferLength));
+
+        for (let i = 0; i < bufferLength; i++) {
+            arraybuffer[i] = decodedString.charCodeAt(i);
+        }
+
+        return arraybuffer.buffer;
+    };
+  
+  static Fmod (x, y) {
+    return Number((x - (Math.floor(x / y) * y)).toPrecision(8));
+  }
+  
+  static GetFilenameExtension (filename) {
+    let dot = filename.lastIndexOf(".");
+    let extension = filename.substring(dot, filename.length).toLowerCase();
+    
+    return extension;
+  }
 
   // TO REVIEW
-  static LoadFile (url, asArrayBuffer, onLoadedFile) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
+  static LoadFile (url, asArrayBuffer, onLoadedFileCallback, onErrorCallback, async) {
+    let request = new XMLHttpRequest();
+    async = async === undefined ? true : async;
+    
+    request.open('GET', url, async);
     
     if (asArrayBuffer) {
-      request.responseType = 'arrayBuffer';
+      request.responseType = "arraybuffer";
     }
     
-    request.onreadystatechange = () => {
-      if (request.readyState === 4 && request.status === 200) {
-        onLoadedFile(asArrayBuffer ? request.response : request.responseText);
-      } else {
-        throw new PompeiError('Cannot load file at: ' + url + ' => ' + request.status);
-      }
-    };
+    if (async) {
+      request.onreadystatechange = () => {
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            onLoadedFileCallback(asArrayBuffer ? request.response : request.responseText);
+          } else {
+            onErrorCallback();
+            throw new PompeiError('Cannot load file at: ' + url + ' => ' + request.status);
+          }
+        }
+      };
+    }
+    
+    request.send(null);
+    
+    if (!async) {
+      onLoadedFileCallback(asArrayBuffer ? request.response : request.responseText);
+    }
   }
 }

@@ -17,10 +17,24 @@ export default class Device {
     }
     
     this._options = options || {};
+    
     this._canvas = canvas;
     
     this._renderer = new Renderer(context, options);
-    this._scene = new Scene(this.renderer, options);
+    this._scene = new Scene(this, options);
+    
+    // Configure events
+    window.addEventListener('resize', (event) => {
+      this.resize();
+    });
+  }
+  
+  resize (event) {
+    this._renderer.resize(new Vector2(this._canvas.width, this._canvas.height));
+    
+    if (this._scene.activeCamera) {
+      this._scene.activeCamera.aspect = this._canvas.width / this._canvas.height;
+    }
   }
   
   get renderer () {

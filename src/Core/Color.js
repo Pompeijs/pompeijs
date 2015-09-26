@@ -1,15 +1,11 @@
 import { PompeiError } from '../utils/errors';
 
 export default class Color {
-  constructor (other) {
-    this.r = 0.0;
-    this.g = 0.0;
-    this.b = 0.0;
-    this.a = 0.0;
-
-    if (other) {
-      this.set(other);
-    }
+  constructor (r, g, b, a) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
   }
 
   toArray () {
@@ -29,6 +25,8 @@ export default class Color {
       this.b = other[2];
       this.a = other[3];
     }
+    
+    return this;
   }
 
   fromArray (other) {
@@ -36,6 +34,8 @@ export default class Color {
     this.g = other[1];
     this.b = other[2];
     this.a = other[3];
+    
+    return this;
   }
 
   plus (other) {
@@ -43,6 +43,8 @@ export default class Color {
     this.g += other.g;
     this.b += other.b;
     this.a += other.a;
+    
+    return this;
   }
 
   minus (other) {
@@ -50,6 +52,8 @@ export default class Color {
     this.g -= other.g;
     this.b -= other.b;
     this.a -= other.a;
+    
+    return this;
   }
 
   multiply (other) {
@@ -57,5 +61,7 @@ export default class Color {
     this.g *= other.g;
     this.b *= other.b;
     this.a *= other.a;
+    
+    return this;
   }
 }

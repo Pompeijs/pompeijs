@@ -1,9 +1,9 @@
 import { PompeiError } from '../utils/errors';
 import Vertex from './Vertex';
-import Material from '../Material/Material';
+import ShaderMaterial from '../Material/ShaderMaterial';
 
 export default class VertexBuffer {
-  constructor (vertices, indices) {
+  constructor (vertices) {
 
     this._positions = [];
     this._normals = [];
@@ -31,7 +31,7 @@ export default class VertexBuffer {
   }
 
   set material (material) {
-    if (material !== null && !(material instanceof Material)) {
+    if (material !== null && !(material instanceof ShaderMaterial)) {
       throw new PompeiError('Bad parameter. Cannot set a material that is not a Material or null. set material (material)');
     }
 
@@ -58,10 +58,6 @@ export default class VertexBuffer {
   }
 
   set indices (indices) {
-    if (!Array.isArray(indices)) {
-      throw new PompeiError('Bad parameter: indices is not an array. set indices (indices)');
-    }
-
     this._indices = indices;
   }
 

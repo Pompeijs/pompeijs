@@ -3,6 +3,8 @@ import { PompeiError } from '../utils/errors';
 import { Vector2, Vector3 } from '../Core/Vector';
 import Matrix from '../Core/Matrix';
 
+import Scene from '../Scene';
+
 import Animator from '../Animators/Animator';
 
 export default class SceneNode {
@@ -11,6 +13,7 @@ export default class SceneNode {
 			throw new PompeiError('Bad parameters: name and scene must be provided. constructor(name, scene, parent)');
 		}
 		
+		this.id = '';
 		this.name = name;
 		this.isVisible = true;
 		
@@ -27,14 +30,17 @@ export default class SceneNode {
 		this._children = [];
 		
 		// Transformations
-		this._position = new Vector3();
-		this._rotation = new Vector3();
-		this._scale = new Vector3([1, 1, 1]);
+		this._position = new Vector3(0, 0, 0);
+		this._rotation = new Vector3(0, 0, 0);
+		this._scale = new Vector3(1, 1, 1);
 		
 		this._absoluteTransform = Matrix.Identity();
 		
 		// Animators
 		this._animators = [];
+		
+		// Materials
+		this._materials = [];
 		
 		// Temp values
 		this._tempWorldTransform = Matrix.Identity();
@@ -49,7 +55,7 @@ export default class SceneNode {
 		const now = this._scene.now();
 		
 		for (let i=0; i < this._animators.length; i++) {
-			this._animators[i].onAnimate(now);
+			this._animators[i].onAnimate(this, now);
 		}
 	}
 	
@@ -83,11 +89,25 @@ export default class SceneNode {
 		
 		if (this._parent) {
 			this._absoluteTransform.set(this._parent.absoluteTransformation)
-				.multiply(this.relativeTransformation)
+				.multiply(this.relativeTransformation);
 		}
 		else {
 			this._absoluteTransform.set(this.relativeTransformation);
 		}
+	}
+	
+	clone () {
+		return null;
+	}
+	
+	// To be overidded
+	get type () {
+		return Scene.SceneNodeType.UNKNOWN;
+	}
+	
+	// Getters
+	get scene () {
+		return this._scene;
 	}
 	
 	get absoluteTransformation () {
@@ -109,6 +129,10 @@ export default class SceneNode {
 	
 	get children () {
 		return this._children;
+	}
+	
+	get materials () {
+		return this._materials;
 	}
 	
 	get position () {
@@ -147,15 +171,7 @@ export default class SceneNode {
 		this._scale = scale;
 	}
 	
-	// Transformations
-	get worldMatrix () {
-		this._tempWorldTransform.setScale(this._scale);
-		this._tempWorldTransform.setRotationDegrees(this._rotation);
-		this._tempWorldTransform.setTranslation(this._position);
-		
-		return this._tempWorldTransform;
-	}
-	
+	// Transformations	
 	get relativeTransformation () {
 		this._tempRelativeTransform.setRotationDegrees(this._rotation);
 		this._tempRelativeTransform.setTranslation(this._position);
@@ -167,6 +183,10 @@ export default class SceneNode {
 		}
 		
 		return this._tempRelativeTransform;
+	}
+	
+	get worldMatrix () {
+		return this.absoluteTransformation;
 	}
 	
 	set worldMatrix (worldMatrix) {

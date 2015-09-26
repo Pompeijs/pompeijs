@@ -24,6 +24,7 @@ export default class RotationCameraAnimator extends Animator {
     this.translateSpeed = 0.1;
     this.zoomSpeed = 1.0;
     
+    // Members
     this._camera = camera;
     
     this._mouseRotate = false;
@@ -37,37 +38,38 @@ export default class RotationCameraAnimator extends Animator {
     this._currentZoom = 10;
     this._currentMouseWheel = 0;
     
-    this._mousePosition = new Vector2();
-    this._rotateStart = new Vector2();
-    this._translateStart = new Vector2();
-    this._zoomStart = new Vector2();
+    this._mousePosition = new Vector2(0, 0);
+    this._rotateStart = new Vector2(0, 0);
+    this._translateStart = new Vector2(0, 0);
+    this._zoomStart = new Vector2(0, 0);
     
-    this._lastCameraTarget = new Vector3(camera.target);
-    this._oldTarget = new Vector3(camera.target);
+    this._lastCameraTarget = new Vector3().set(camera.target);
+    this._oldTarget = new Vector3().set(camera.target);
     
-    this._tempPositionTargetX = new Vector3();
-    this._tempPositionTargetY = new Vector3();
-    this._tempPosition = new Vector3();
-    this._tempTranslate = new Vector3();
-    this._tempUpVector = new Vector3();
-    this._tempTarget = new Vector3();
-    this._tempPositionTarget = new Vector3();
+    // Temporary vectors
+    this._tempPositionTargetX = new Vector3(0, 0, 0);
+    this._tempPositionTargetY = new Vector3(0, 0, 0);
+    this._tempPosition = new Vector3(0, 0, 0);
+    this._tempTranslate = new Vector3(0, 0, 0);
+    this._tempUpVector = new Vector3(0, 0, 0);
+    this._tempTarget = new Vector3(0, 0, 0);
+    this._tempPositionTarget = new Vector3(0, 0, 0);
     
     // Configure events
-    scene.renderer.canvas.addEventListener('mousedown', this.onMouseDown());
-    scene.renderer.canvas.addEventListener('mouseup', this.onMouseUp());
-    scene.renderer.canvas.addEventListener('mousewheel', this.onMouseWheel());
-    scene.renderer.canvas.addEventListener('mousemove', this.onMouseMove());
+    scene.renderer.canvas.addEventListener('mousedown', this._onMouseDown());
+    scene.renderer.canvas.addEventListener('mouseup', this._onMouseUp());
+    scene.renderer.canvas.addEventListener('mousewheel', this._onMouseWheel());
+    scene.renderer.canvas.addEventListener('mousemove', this._onMouseMove());
   }
   
-  onMouseMove () {
+  _onMouseMove () {
     return (event) => {
       this._mousePosition.x = event.clientX;
       this._mousePosition.y = event.clientY;
     };
   }
   
-  onMouseUp () {
+  _onMouseUp () {
     return (event) => {
       let button = event.button;
       
@@ -80,7 +82,7 @@ export default class RotationCameraAnimator extends Animator {
     };
   }
   
-  onMouseDown () {
+  _onMouseDown () {
     return (event) => {
       this._mousePosition.x = event.clientX;
       this._mousePosition.y = event.clientY;
@@ -90,13 +92,13 @@ export default class RotationCameraAnimator extends Animator {
     };
   }
   
-  onMouseWheel () {
+  _onMouseWheel () {
     return (event) => {
       this._currentMouseWheel += event.wheelDeltaY * 0.01;
     };
   }
   
-  onAnimate (timeMS) {
+  onAnimate (object, timeMS) {
     let nRotX = this._rotX;
     let nRotY = this._rotY;
     let nZoom = this._currentZoom;

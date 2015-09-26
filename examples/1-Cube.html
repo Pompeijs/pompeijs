@@ -152,7 +152,7 @@
         ];
         
         var colors = [];
-        for (var i=0; i < positions.length; i+=3) {
+        for (var i=0; i < positions.length; i+=4) {
             colors = colors.concat([1, 0, 0, 1]);
         }
         
@@ -173,7 +173,7 @@
         var node = new Pompei.MeshSceneNode("cube", scene, null, mesh);
         node.scale.set([1, 1, 1]);
         
-        var clearColor = new Pompei.Color([0.0, 0.0, 0.0, 1.0]);
+        var clearColor = new Pompei.Color(0.0, 0.0, 0.0, 1.0);
         
         function update() {
             window.requestAnimationFrame(update);
