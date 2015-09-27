@@ -11,7 +11,7 @@ import Mesh from '../Mesh/Mesh.js';
 import Material from '../Material/Material';
 
 export default class ScreenQuad {
-  constructor (name, scene) {
+  constructor (name, scene, texturesCount) {
     this._scene = scene;
     this._renderer = scene.renderer;
     
@@ -36,7 +36,11 @@ export default class ScreenQuad {
     this._mesh.finish();
     
     this._material = new Material();
-    this._renderTargets = [];
+    
+    texturesCount = texturesCount || 1;
+    for (let i=0; i < texturesCount; i++) {
+      this._material.textures.push(null);
+    }
     
     this._worldMatrix = Matrix.Identity();
   }

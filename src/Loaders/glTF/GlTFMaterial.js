@@ -53,6 +53,7 @@ export default class GlTFMaterial extends ShaderMaterial {
 		let instanceProgramUniforms = this._gltfPass.instanceProgram.uniforms;
 		let technique = this._gltfRuntime.techniques[this._gltfMaterial.instanceTechnique.technique];
 		let parameters = technique.parameters;
+		let samplerId = 0;
 		
 		for (let i=0; i < this._uniforms.length; i++) {
 			let unif = this._uniforms[i];
@@ -66,13 +67,18 @@ export default class GlTFMaterial extends ShaderMaterial {
 				case GlTFMaterial.UniformType.FLOAT:
 					service.setFloat(unif, value);
 					break;
+				case GlTFMaterial.UniformType.INT:
+					service.setInt(unif, value);
+					break;
 				case GlTFMaterial.UniformType.SAMPLER_2D:
 					{
 						let gltfTexture = this._gltfRuntime.textures[value];
 						let source = this._gltfRuntime.images[gltfTexture.source];
 						
-						this._renderer.currentMaterial.textures[0] = this._renderer.createTexture(this._gltfRuntime.rootUrl + source.uri);
-						service.setInt(unif, 0);
+						this._renderer.currentMaterial.textures[samplerId] = this._renderer.createTexture(this._gltfRuntime.rootUrl + source.uri);
+						service.setInt(unif, samplerId);
+						
+						samplerId++;
 					}
 					break;
 				case GlTFMaterial.UniformType.FLOAT_VEC2:
@@ -97,7 +103,7 @@ export default class GlTFMaterial extends ShaderMaterial {
 							mat.set(renderer.projectionMatrix);
 						}
 						else if (parameter.semantic === "MODELVIEWINVERSETRANSPOSE") {
-							mat.set(renderer.viewMatrix).multiply(source.worldMatrix).inverse().transpose();
+							mat.set(renderer.viewMatrix).multiply(source.worldMatrix);//.inverse().transpose();
 						}
 						else if (parameter.semantic === "MODELVIEW") {
 							mat.set(renderer.viewMatrix).multiply(source.worldMatrix);
@@ -121,7 +127,7 @@ export default class GlTFMaterial extends ShaderMaterial {
 							mat.set(renderer.projectionMatrix).multiply(renderer.viewMatrix).multiply(source.worldMatrix).inverse();
 						}
 						else if (parameter.semantic === "MODELINVERSETRANSPOSE") {
-							mat.set(source.worldMatrix).inverse().transpose();
+							mat.set(source.worldMatrix);//.inverse().transpose();
 						}
 						
 						switch (parameter.type) {

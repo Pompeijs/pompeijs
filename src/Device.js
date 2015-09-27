@@ -19,22 +19,56 @@ export default class Device {
     this._options = options || {};
     
     this._canvas = canvas;
+    this._lastWidth = this._canvas.width;
+    this._lastHeight = this._canvas.height;
     
     this._renderer = new Renderer(context, options);
-    this._scene = new Scene(this, options);
+    this._scenes = [];
+    this._scenes.push(new Scene(this, options));
     
     // Configure events
     window.addEventListener('resize', (event) => {
       this.resize();
     });
+    
+    // Custom functions
+    this.onPreUpdate = () => { };
+    this.onPostUpdate = () => { };
   }
   
   resize (event) {
+    if (this.scene.shadowsHandler) {
+      this.scene.shadowsHandler.resize();
+    }
+    
     this._renderer.resize(new Vector2(this._canvas.width, this._canvas.height));
     
-    if (this._scene.activeCamera) {
-      this._scene.activeCamera.aspect = this._canvas.width / this._canvas.height;
+    if (this.scene.activeCamera) {
+      this.scene.activeCamera.aspect = this._canvas.width / this._canvas.height;
     }
+  }
+  
+  update () {
+    window.requestAnimationFrame(this.update.bind(this));
+    
+    if (this._canvas.height !== this._lastHeight || this._canvas.width !== this._lastWidth) {
+      this.resize();
+      this._lastHeight = this._canvas.height;
+      this._lastWidth = this._canvas.width;
+    }
+    
+    this._renderer.begin(this.scene.clearColor, true, true);
+    this.onPreUpdate();
+    
+    if (this.scene.shadowsHandler) {
+      this.scene.shadowsHandler.update(this.scene);
+    }
+    else {
+      this.scene.drawAll();
+    }
+    
+    this.onPostUpdate();
+    this._renderer.end();
   }
   
   get renderer () {
@@ -42,7 +76,11 @@ export default class Device {
   }
 
   get scene () {
-    return this._scene;
+    return this._scenes[0];
+  }
+  
+  get canvas () {
+    return this._canvas;
   }
   
   get pointerX () {

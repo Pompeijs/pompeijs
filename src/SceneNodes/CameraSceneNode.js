@@ -96,11 +96,11 @@ export default class CameraSceneNode extends SceneNode {
     this._upVector.set(upVector);
   }
   
-  viewMatrix () {
+  get viewMatrix () {
     return this._viewMatrix;
   }
   
-  projectionMatrix () {
+  get projectionMatrix () {
     return this._projectionMatrix;
   }
   

@@ -15,7 +15,6 @@ export default class LightSceneNode extends SceneNode {
 		this.specularPower = 32;
 		
 		this._computesShadows = false;
-		this._isSpot = false;
 	}
 	
 	get type () {
@@ -24,10 +23,6 @@ export default class LightSceneNode extends SceneNode {
 	
 	get isComputingShadows () {
 		return this._computesShadows;
-	}
-	
-	get isSpot () {
-		return this._isSpot;
 	}
 	
 	remove () {

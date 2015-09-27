@@ -14,6 +14,7 @@
 		"src/Scene.js",
 		
 		"src/Rendering/MaterialRenderer.js",
+		"src/Rendering/ShadowsHandler.js",
 		
 		"src/Core/Plane.js",
 		"src/Core/Quaternion.js",
@@ -33,6 +34,7 @@
 		"src/SceneNodes/MeshSceneNode.js",
 		"src/SceneNodes/CameraSceneNode.js",
 		"src/SceneNodes/LightSceneNode.js",
+		"src/SceneNodes/SpotLightSceneNode.js",
 		
 		"src/Animators/Animator.js",
 		"src/Animators/RotationAnimator.js",

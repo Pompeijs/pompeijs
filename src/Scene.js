@@ -23,6 +23,7 @@ export default class Scene {
       MESH_SCENE_NODE: 1,
       CAMERA_SCENE_NODE: 2,
       LIGHT_SCENE_NODE: 3,
+      SPOT_LIGHT_SCENE_NODE: 4,
       
       UNKNOWN: -1
     }
@@ -63,6 +64,9 @@ export default class Scene {
     // Options
     this._clearColor = new Color(0, 0, 0, 1);
     this._ambientColor = new Color(1, 1, 1, 1);
+    
+    // Public members
+    this.shadowsHandler = null;
   }
   
   get renderer () {

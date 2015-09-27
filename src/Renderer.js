@@ -15,8 +15,15 @@ import SolidMaterial from './Material/SolidMaterial';
 import Texture from './Textures/Texture';
 import RenderTargetTexture from './Textures/RenderTargetTexture';
 
+class Features {
+  constructor (gl) {
+    this.floatingPointTexture = gl.getExtension('OES_texture_float');
+    this.floatingPointTextureLinear = gl.getExtension('OES_texture_float_linear');
+  }
+}
+
 export default class Renderer {
-  constructor(context, options) {
+  constructor (context, options) {
     this._gl = context;
     this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this._gl.clearDepth(1.0);
@@ -24,9 +31,6 @@ export default class Renderer {
     this._gl.depthFunc(this._gl.LEQUAL);
 
     options = options || {};
-
-    // Custom functions
-    this.onDraw = () => {};
     
     // Transformations
     this._worldMatrix = Matrix.Identity();
@@ -55,6 +59,13 @@ export default class Renderer {
     this.createCustomTexture(new Dimension2(1, 1), (texture) => {
       this._defaultTexture = texture;
     });
+    
+    // Features
+    this._features = new Features(this._gl);
+  }
+  
+  queryFeature (feature) {
+    return this._features[feature];
   }
 
   resize(size) {
@@ -75,6 +86,8 @@ export default class Renderer {
       canvas.height = this._viewPort.y;
     }
     
+    this.setRenderTarget(null, clearColor, clearBackBuffer, clearDepthBuffer);
+    /*
     this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     
     if (clearDepthBuffer) {
@@ -84,6 +97,7 @@ export default class Renderer {
     if (clearBackBuffer) {
       this._gl.clear(this._gl.COLOR_BUFFER_BIT);
     }
+    */
   }
 
   end () {
@@ -108,6 +122,7 @@ export default class Renderer {
     let shaderMaterial = this._materialRenderer._currentShaderMaterial;
     let program = shaderMaterial.program;
     
+    // Bind buffers
     for (let i = 0; i < shaderMaterial.attributes.length; i++) {
       try {
         if (!vertexBuffer[shaderMaterial.attributes[i]]) {
@@ -137,7 +152,12 @@ export default class Renderer {
     else {
       for (let i=0; i < this._currentMaterial.textures.length; i++) {
         this._gl.activeTexture(this._gl["TEXTURE" + i]);
-        this._gl.bindTexture(this._gl.TEXTURE_2D, this._currentMaterial.textures[i].texture);
+        
+        let texture = this._currentMaterial.textures[i];
+        
+        if (texture) {
+          this._gl.bindTexture(this._gl.TEXTURE_2D, texture.texture);
+        }
       }
     }
     
@@ -182,6 +202,30 @@ export default class Renderer {
     this._gl.useProgram(shaderMaterial.program);
     
     // Configure
+    let zBuffer = this._currentMaterial.zBuffer;
+    
+    // Blending
+    this._gl.enable(this._gl.BLEND);
+    
+    switch (this._currentMaterial.blendOperation) {
+      case Material.BlendOperation.NONE:
+        this._gl.disable(this._gl.BLEND);
+        break;
+      case Material.BlendOperation.ADD:
+        this._gl.blendEquation(this._gl.FUNC_ADD);
+        zBuffer = false;
+        break;
+      case Material.BlendOperation.SUBTRACT:
+        this._gl.blendEquation(this._gl.SUBTRACT);
+        break;
+      case Material.BlendOperation.REV_SUBTRACT:
+        this._gl.blendEquation(this._gl.REV_SUBTRACT);
+        break;
+      default:
+        break;
+    }
+    
+    // Configure
     if (this._currentMaterial.backFaceCulling) {
       this._gl.enable(this._gl.CULL_FACE);
     }
@@ -189,9 +233,18 @@ export default class Renderer {
       this._gl.disable(this._gl.CULL_FACE);
     }
     this._gl.cullFace(this._currentMaterial.backFaceCulling ? this._gl.BACK : this._gl.FRONT);
+    
+    this._gl.depthMask(this._currentMaterial.zWrite);
+    
+    if (zBuffer) {
+      this._gl.enable(this._gl.DEPTH_TEST);
+    }
+    else {
+      this._gl.disable(this._gl.DEPTH_TEST);
+    }
   }
   
-  setRenderTarget (renderTarget, clearColor, clearBackBuffer) {
+  setRenderTarget (renderTarget, clearColor, clearBackBuffer, clearDepthBuffer) {
     if (renderTarget && !(renderTarget instanceof RenderTargetTexture)) {
       throw new PompeiError('Bad parameter: renderTarget must be a RenderTargetTexture. setRenderTarget (renderTarget)');
     }
@@ -220,12 +273,26 @@ export default class Renderer {
     
     let mode = 0;
     
-    clearBackBuffer = clearBackBuffer || true;
+    clearBackBuffer = clearBackBuffer === undefined ? true : clearBackBuffer;
     if (clearBackBuffer) {
-      mode |= this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+      mode |= this._gl.COLOR_BUFFER_BIT;
     }
     
-    this._gl.clear(mode);
+    clearDepthBuffer = clearDepthBuffer === undefined ? true : clearDepthBuffer;
+    if (clearDepthBuffer) {
+      mode |= this._gl.DEPTH_BUFFER_BIT;
+      this._gl.clearDepth(1.0);
+    }
+    
+    if (mode !== 0) {
+      this._gl.clear(mode);
+    }
+    
+    // Blend func
+    let src = this._getBlendFactor(renderTarget.blendFuncSrc);
+    let dst = this._getBlendFactor(renderTarget.blendFuncDest);
+    
+    this._gl.blendFunc(src, dst);
     
     // Set current render target
     this._currentRenderTarget = renderTarget || null;
@@ -295,7 +362,7 @@ export default class Renderer {
     return program;
   }
   
-  createRenderTarget (name, size, force) {
+  createRenderTarget (name, size, force, floatingPoint) {
     // Check is exists
     if (!force) {
       for (let i=0; i < this._textures.length; i++) {
@@ -309,33 +376,48 @@ export default class Renderer {
       throw new PompeiError('Bad parameter: size must be a Dimension2. createRenderTarget (name, size, force)');
     }
     
+    if (floatingPoint && !this.queryFeature('floatingPointTexture')) {
+      console.warn('Floating point textures not supported...');
+      floatingPoint = false;
+    }
+    
     // Create texture
     let texture = this._gl.createTexture();
+    let samplingMode = floatingPoint ? this._gl.NEAREST : this._gl.LINEAR;
     
     this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
-    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
-    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, samplingMode);
+    this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, samplingMode);
     this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
     this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-    this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, size.width, size.height, 0, this._gl.RGBA, this._gl.UNSIGNED_BYTE, null);
+    this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, size.width, size.height, 0,
+      this._gl.RGBA, floatingPoint ? this._gl.FLOAT : this._gl.UNSIGNED_BYTE, null);
+    
+    // Depth buffer
+    let depthbuffer = this._gl.createRenderbuffer();
+    this._gl.bindRenderbuffer(this._gl.RENDERBUFFER, depthbuffer);
+    this._gl.renderbufferStorage(this._gl.RENDERBUFFER, this._gl.DEPTH_COMPONENT16, size.width, size.height);
     
     // Create frame buffer
     let framebuffer = this._gl.createFramebuffer();
     this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, framebuffer);
     this._gl.framebufferTexture2D(this._gl.FRAMEBUFFER, this._gl.COLOR_ATTACHMENT0, this._gl.TEXTURE_2D, texture, 0);
+    this._gl.framebufferRenderbuffer(this._gl.FRAMEBUFFER, this._gl.DEPTH_ATTACHMENT, this._gl.RENDERBUFFER, depthbuffer);
     
     // Unbind
     this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+    this._gl.bindRenderbuffer(this._gl.RENDERBUFFER, null);
     this._gl.bindFramebuffer(this._gl.FRAMEBUFFER, null);
     
     framebuffer._width = size.width;
     framebuffer._height = size.height;
     
+    texture._depthbuffer = depthbuffer;
     texture._framebuffer = framebuffer;
     texture._width = size.width;
     texture._height = size.height;
     
-    this._textures.push(new RenderTargetTexture(this, name, texture, framebuffer));
+    this._textures.push(new RenderTargetTexture(this, name, texture, framebuffer, depthbuffer));
     
     return this._textures[this._textures.length - 1];
   }
@@ -541,5 +623,20 @@ export default class Renderer {
 
   get projectionMatrix() {
     return this._projectionMatrix;
+  }
+  
+  _getBlendFactor (factor) {
+    let result = this._gl.ONE;
+    
+    switch (factor) {
+      case RenderTargetTexture.BlendFactor.ZERO: result = this._gl.ZERO; break;
+      case RenderTargetTexture.BlendFactor.ONE_MINUS_DST_COLOR: result = this._gl.ONE_MINUS_DST_COLOR; break;
+      case RenderTargetTexture.BlendFactor.ONE_MINUS_SRC_ALPHA: result = this._gl.ONE_MINUS_SRC_ALPHA; break;
+      case RenderTargetTexture.BlendFactor.SRC_COLOR: result = this._gl.SRC_COLOR; break;
+      case RenderTargetTexture.BlendFactor.DST_COLOR: result = this._gl.DST_COLOR; break;
+      default: break;
+    }
+    
+    return result;
   }
 }

@@ -110,7 +110,7 @@ export default class MaterialRenderer {
       return;
     }
     
-    this._gl.uniform3f(location, false, vector.x, vector.y, vector.z);
+    this._gl.uniform3f(location, vector.x, vector.y, vector.z);
   }
   
   setVector3Array (uniform, vectors) {

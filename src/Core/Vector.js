@@ -8,6 +8,11 @@ export class Vector3 {
     return this._zeroVector;
   }
   
+  static get TempVector () {
+    this._tempVector = this._tempVector || new Vector3(0, 0, 0);
+    return this._tempVector;
+  }
+  
   constructor (x, y, z) {
     this.x = x;
     this.y = y;
@@ -28,6 +33,14 @@ export class Vector3 {
       this.y = other[1];
       this.z = other[2];
     }
+    
+    return this;
+  }
+  
+  setXYZ (x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
     
     return this;
   }

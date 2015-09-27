@@ -21,5 +21,9 @@ export default class PostProcess extends ShaderMaterial {
   
   onSetConstants (renderer, service) {
     service.setInt("u_colorMapSampler", 0);
+    
+    if (this.customCallback) {
+      this.customCallback(renderer, service);
+    }
   }
 }

@@ -3,6 +3,7 @@ import Renderer from './Renderer';
 import Scene from './Scene';
 
 import MaterialRenderer from './Rendering/MaterialRenderer';
+import ShadowsHandler from './Rendering/ShadowsHandler';
 
 import Quaternion from './Core/Quaternion';
 import Matrix from './Core/Matrix';
@@ -32,6 +33,7 @@ import CameraSceneNode from './SceneNodes/CameraSceneNode';
 import SceneNode from './SceneNodes/SceneNode';
 import MeshSceneNode from './SceneNodes/MeshSceneNode';
 import LightSceneNode from './SceneNodes/LightSceneNode';
+import SpotLightSceneNode from './SceneNodes/SpotLightSceneNode';
 
 import Texture from './Textures/Texture';
 import RenderTargetTexture from './Textures/RenderTargetTexture';
@@ -46,6 +48,7 @@ export default {
   Renderer,
   Scene,
 
+  ShadowsHandler,
   MaterialRenderer,
 
   Quaternion,
@@ -77,6 +80,7 @@ export default {
   SceneNode,
   MeshSceneNode,
   LightSceneNode,
+  SpotLightSceneNode,
   
   Texture,
   RenderTargetTexture,

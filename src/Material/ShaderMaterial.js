@@ -40,6 +40,7 @@ export default class ShaderMaterial {
     
     // Public members
     this.id = '';
+    this.customCallback = null;
   }
 
   get renderer () {
@@ -102,6 +103,10 @@ export default class ShaderMaterial {
       .multiply(renderer.worldMatrix);
       
     service.setMatrix('u_worldViewProjection', worldViewProjection);
+    
+    if (this.customCallback) {
+      this.customCallback(renderer, service);
+    }
   }
   
   // To be overidded

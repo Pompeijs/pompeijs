@@ -22,7 +22,7 @@ export default class RotationCameraAnimator extends Animator {
     
     this.rotateSpeed = -1.0;
     this.translateSpeed = 0.1;
-    this.zoomSpeed = 1.0;
+    this.zoomSpeed = 0.5;
     
     // Members
     this._camera = camera;

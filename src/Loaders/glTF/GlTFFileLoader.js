@@ -126,7 +126,7 @@ let createNodes = (gltfRuntime, device) => {
     
     // Lights
     if (gltfNode.light) {
-      node = new LightSceneNode(gltfNode.name, device.scene);
+      //node = new LightSceneNode(gltfNode.name, device.scene);
     }
     // MeshSceneNode
     else if (gltfNode.meshes) {
