@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Pompei.js Cube Example (custom mesh)</title>
+    <!-- Pompei.js -->
+    <script src="../dist/Pompei.js"></script>
+	
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+	
+    <script>
+	    var canvas = document.getElementById('renderCanvas');
+		
+	    var device = new Pompei.Device(canvas);
+        var scene = device.scene;
+        var renderer = device.renderer;
+        
+        var standardMaterial = new Pompei.StandardMaterial(scene);
+        standardMaterial.bumpStrength = 30;
+        standardMaterial.specularStrength = 1;
+        
+        var camera = new Pompei.CameraSceneNode("camera", scene, null);
+        camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
+        
+        var light = new Pompei.SpotLightSceneNode("light", scene, null, 1024);
+        light.position.setXYZ(-5, 5, 5);
+        light.specularPower = 0.7;
+        light.roundedSpotLight = true;
+        
+        var cube = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createCubeMesh(1));
+        cube.position.y = 1.5;
+        
+        var plane = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createPlaneMesh(30, 20));
+        
+        plane.materials[0].backFaceCulling = false;
+        plane.materials[0].shaderMaterial = standardMaterial;
+        plane.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
+        plane.materials[0].addTexture(renderer.createTexture("floor_bump.png"));
+        
+        cube.materials[0].backFaceCulling = false;
+        cube.materials[0].addTexture(renderer.createTexture("bath.jpg"));
+        cube.materials[0].addTexture(renderer.createTexture("bath_normal.jpg"));
+        
+		// Shadows
+        scene.shadowsHandler = new Pompei.ShadowsHandler(device);
+        scene.ambientColor.set([0.2, 0.2, 0.2, 1.0]);
+        
+        scene.shadowsHandler.addShadowsToNode(cube, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+        scene.shadowsHandler.addShadowsToNode(plane, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+		
+		// Post-processes
+        var postProcessPipelineScene = new Pompei.PostProcessPipeline("scene", device);
+        postProcessPipelineScene.postProcesses.push(new Pompei.PostProcess("save", scene));
+        
+        var postProcessPipelineBloom = new Pompei.PostProcessPipeline("bloom", device);
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BrightPassPostProcess("brightPass", scene));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BlurPostProcess("blurH", scene, false));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BlurPostProcess("blurV", scene, true));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BloomPostProcess("bloom", scene));
+        
+        scene.postProcessHandler = new Pompei.PostProcessHandler(device);
+        scene.postProcessHandler.postProcessPipelines.push(postProcessPipelineScene);
+        scene.postProcessHandler.postProcessPipelines.push(postProcessPipelineBloom);
+        
+        // Cube texture
+        var cubeTexture = renderer.createCubeTexture("skybox", [
+            "CubeTexture/skybox_px.jpg",
+            "CubeTexture/skybox_nx.jpg",
+            "CubeTexture/skybox_py.jpg",
+            "CubeTexture/skybox_nx.jpg",
+            "CubeTexture/skybox_pz.jpg",
+            "CubeTexture/skybox_nz.jpg",
+        ]);
+        plane.materials[0].addTexture(cubeTexture);
+        standardMaterial.reflectionStrength = 0.5;
+		
+        device.onPreUpdate = function () {
+            cube.rotation.y += 1;
+        };
+        
+        device.update();
+        
+    </script>
+</body>
+</html>
