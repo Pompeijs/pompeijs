@@ -67,6 +67,7 @@ export default class Scene {
     
     // Public members
     this.shadowsHandler = null;
+    this.postProcessHandler = null;
   }
   
   get renderer () {
@@ -148,9 +149,14 @@ export default class Scene {
     this._renderer.end();
   }
 
-  drawAll () {
+  drawAll (output) {
     if (!this._renderer.defaultMaterial.shaderMaterial.programReady) {
       return;
+    }
+    
+    // Set render target
+    if (output) {
+      this._renderer.setRenderTarget(output, this._clearColor, true, true);
     }
     
     // Render active camera

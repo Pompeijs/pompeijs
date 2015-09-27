@@ -15,6 +15,7 @@
 		
 		"src/Rendering/MaterialRenderer.js",
 		"src/Rendering/ShadowsHandler.js",
+		"src/Rendering/PostProcessHandler.js",
 		
 		"src/Core/Plane.js",
 		"src/Core/Quaternion.js",
@@ -50,6 +51,10 @@
 		
 		"src/PostProcess/ScreenQuad.js",
 		"src/PostProcess/PostProcess.js",
+		"src/PostProcess/PostProcessPipeline.js",
+		"src/PostProcess/PostProcesses/BrightPass.js",
+		"src/PostProcess/PostProcesses/Blur.js",
+		"src/PostProcess/PostProcesses/Bloom.js",
 		
 		"src/Loaders/Loader.js",
 		"src/Loaders/Tokenizer.js",

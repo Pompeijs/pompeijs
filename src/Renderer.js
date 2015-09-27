@@ -293,8 +293,6 @@ export default class Renderer {
     let dst = this._getBlendFactor(renderTarget.blendFuncDest);
     this._gl.blendFunc(src, dst);
     
-     //this._gl.blendFuncSeparate(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA, this._gl.ZERO, this._gl.ONE);
-    
     // Set current render target
     this._currentRenderTarget = renderTarget || null;
   }

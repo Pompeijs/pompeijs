@@ -62,7 +62,7 @@
             scene.getSceneNodesFromType(Pompei.Scene.SceneNodeType.MESH_SCENE_NODE, null, nodes);
             
             for (var i=0; i < nodes.length; i++) {
-                scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.BOTH);
+                scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
                 for (var j=0; j < nodes[i].materials.length; j++) {
                     nodes[i].materials[j].backFaceCulling = false;
                 }

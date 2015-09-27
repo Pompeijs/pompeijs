@@ -58,12 +58,27 @@
         cube.materials[0].backFaceCulling = false;
         cube.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
         
+		// Shadows
         scene.shadowsHandler = new Pompei.ShadowsHandler(device);
         scene.ambientColor.set([0.2, 0.2, 0.2, 1.0]);
         
         scene.shadowsHandler.addShadowsToNode(cube, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
         scene.shadowsHandler.addShadowsToNode(plane, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+		
+		// Post-processes
+        var postProcessPipelineScene = new Pompei.PostProcessPipeline("scene", device);
+        postProcessPipelineScene.postProcesses.push(new Pompei.PostProcess("save", scene));
         
+        var postProcessPipelineBloom = new Pompei.PostProcessPipeline("bloom", device);
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BrightPassPostProcess("brightPass", scene));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BlurPostProcess("blurH", scene, false));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BlurPostProcess("blurV", scene, true));
+        postProcessPipelineBloom.postProcesses.push(new Pompei.BloomPostProcess("bloom", scene));
+        
+        scene.postProcessHandler = new Pompei.PostProcessHandler(device);
+        scene.postProcessHandler.postProcessPipelines.push(postProcessPipelineScene);
+        scene.postProcessHandler.postProcessPipelines.push(postProcessPipelineBloom);
+		
         device.onPreUpdate = function () {
             cube.rotation.y += 1;
         };

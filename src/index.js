@@ -4,6 +4,7 @@ import Scene from './Scene';
 
 import MaterialRenderer from './Rendering/MaterialRenderer';
 import ShadowsHandler from './Rendering/ShadowsHandler';
+import PostProcessHandler from './Rendering/PostProcessHandler';
 
 import Quaternion from './Core/Quaternion';
 import Matrix from './Core/Matrix';
@@ -20,6 +21,10 @@ import SolidMaterial from './Material/SolidMaterial';
 import StandardMaterial from './Material/StandardMaterial';
 
 import PostProcess from './PostProcess/PostProcess';
+import PostProcessPipeline from './PostProcess/PostProcessPipeline';
+import BrightPassPostProcess from './PostProcess/PostProcesses/BrightPass';
+import BlurPostProcess from './PostProcess/PostProcesses/Blur';
+import BloomPostProcess from './PostProcess/PostProcesses/Bloom';
 
 import MeshCache from './Mesh/MeshCache';
 import Mesh from './Mesh/Mesh';
@@ -50,6 +55,7 @@ export default {
 
   ShadowsHandler,
   MaterialRenderer,
+  PostProcessHandler,
 
   Quaternion,
   Matrix,
@@ -67,6 +73,10 @@ export default {
   StandardMaterial,
   
   PostProcess,
+  PostProcessPipeline,
+  BrightPassPostProcess,
+  BlurPostProcess,
+  BloomPostProcess,
 
   MeshCache,
   Mesh,

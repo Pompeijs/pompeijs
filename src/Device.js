@@ -40,6 +40,9 @@ export default class Device {
     if (this.scene.shadowsHandler) {
       this.scene.shadowsHandler.resize();
     }
+    if (this.scene.postProcessHandler) {
+      this.scene.postProcessHandler.resize();
+    }
     
     this._renderer.resize(new Vector2(this._canvas.width, this._canvas.height));
     
@@ -57,16 +60,39 @@ export default class Device {
       this._lastWidth = this._canvas.width;
     }
     
+    // Begin
     this._renderer.begin(this.scene.clearColor, true, true);
     this.onPreUpdate();
     
-    if (this.scene.shadowsHandler) {
-      this.scene.shadowsHandler.update(this.scene);
-    }
-    else {
-      this.scene.drawAll();
+    // Select output framebuffer
+    let outputTarget = null;
+    
+    if (this.scene.postProcessHandler) {
+      let postProcessRoutineSize = this.scene.postProcessHandler.count;
+      if (postProcessRoutineSize > 0) {
+        for (let i=0; i < postProcessRoutineSize; i++) {
+          if (this.scene.postProcessHandler.postProcessPipelines[i].activated) {
+            outputTarget = this.scene.postProcessHandler.postProcessPipelines[i].renderTargets[0];
+            break;
+          }
+        }
+      }
     }
     
+    // Render scene
+    if (this.scene.shadowsHandler) {
+      this.scene.shadowsHandler.update(this.scene, outputTarget);
+    }
+    else {
+      this.scene.drawAll(outputTarget);
+    }
+    
+    // Render post-processes
+    if (outputTarget) {
+      this.scene.postProcessHandler.render(this.scene, null);
+    }
+    
+    // End
     this.onPostUpdate();
     this._renderer.end();
   }

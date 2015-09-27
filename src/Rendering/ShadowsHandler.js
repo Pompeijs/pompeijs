@@ -144,7 +144,7 @@ export default class ShadowsHandler {
   /**
    * @param {Scene} scene
    */
-  update (scene) {
+  update (scene, output) {
     // Animate camera
     scene.activeCamera.render();
     
@@ -258,7 +258,7 @@ export default class ShadowsHandler {
     scene.drawAll();
     
     // Render screenquad
-    this._renderer.setRenderTarget(null, scene.clearColor, true, true);
+    this._renderer.setRenderTarget(output, scene.clearColor, true, true);
     this._screenQuad.material.textures[0] = this._screenRTT;
     this._screenQuad.material.textures[1] = this._colorRTT;
     this._screenQuad.material.shaderMaterial = this._lightModulatePP;
@@ -306,6 +306,9 @@ export default class ShadowsHandler {
   }
   
   _createRenderTargets () {
+    this._renderer.removeTexture(this._screenRTT);
+    this._renderer.removeTexture(this._colorRTT);
+    
     this._screenRTT = this._renderer.createRenderTarget("screenRTT", new Dimension2(this._device.canvas.width, this._device.canvas.height), true);
     this._colorRTT = this._renderer.createRenderTarget("colorRTT", new Dimension2(this._device.canvas.width, this._device.canvas.height), true);
   }
