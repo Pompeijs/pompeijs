@@ -14,6 +14,7 @@ import SolidMaterial from './Material/SolidMaterial';
 
 import Texture from './Textures/Texture';
 import RenderTargetTexture from './Textures/RenderTargetTexture';
+import CubeTexture from './Textures/CubeTexture';
 
 class Features {
   constructor (gl) {
@@ -151,13 +152,17 @@ export default class Renderer {
     }
     else {
       for (let i=0; i < this._currentMaterial.textures.length; i++) {
-        this._gl.activeTexture(this._gl["TEXTURE" + i]);
-        
         let texture = this._currentMaterial.textures[i];
+        let glTexture = null;
+        let isCube = false;
         
         if (texture) {
-          this._gl.bindTexture(this._gl.TEXTURE_2D, texture.texture);
+          glTexture = texture.texture;
+          isCube = texture.isCube;
         }
+        
+        this._gl.activeTexture(this._gl["TEXTURE" + i]);
+        this._gl.bindTexture(isCube ? this._gl.TEXTURE_CUBE_MAP : this._gl.TEXTURE_2D, glTexture);
       }
     }
     
@@ -173,8 +178,15 @@ export default class Renderer {
     
     // Unbind samplers
     for (let i=0; i < this._currentMaterial.textures.length + (textureLength > 0 ? 0 : 1); i++) {
+      let texture = this._currentMaterial.textures[i];
+      let isCube = false;
+      
+      if (texture) {
+        isCube = texture.isCube;
+      }
+      
       this._gl.activeTexture(this._gl["TEXTURE" + i]);
-      this._gl.bindTexture(this._gl.TEXTURE_2D, null);
+      this._gl.bindTexture(isCube ? this._gl.TEXTURE_CUBE_MAP : this._gl.TEXTURE_2D, null);
     }  
   }
   
@@ -442,6 +454,65 @@ export default class Renderer {
     }
     
     return null;
+  }
+  
+  createCubeTexture (name, urls, onLoaded, force) {
+    // Check if exists
+    force = force || false;
+    if (!force) {
+      let texture = this.getTexture(name);
+      if (texture) {
+        return texture;
+      }
+    }
+    
+    if (!(Array.isArray(urls))) {
+      throw new PompeiError('Bad argument. urls must be an Array of URLs. createCubeTexture (urls, onLoaded, force)');
+    }
+    
+    let glTexture = this._gl.createTexture();
+    this._gl.bindTexture(this._gl.TEXTURE_CUBE_MAP, glTexture);
+    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MIN_FILTER, this._gl.LINEAR);
+    this._gl.texParameteri(this._gl.TEXTURE_CUBE_MAP, this._gl.TEXTURE_MAG_FILTER, this._gl.LINEAR);
+    
+    let images = [];
+    let texture = new CubeTexture(this, name, urls, images, glTexture);
+    let orientations = [
+      this._gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+      this._gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+      this._gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+      this._gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      this._gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+      this._gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+    ];
+    
+    for (let i=0; i < urls.length; i++) {
+      let image = new Image();
+      
+      image.onload = ((indice, loadedImage) => {
+        return () => {
+          this._gl.bindTexture(this._gl.TEXTURE_CUBE_MAP, glTexture);
+          //this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, false);
+          this._gl.texImage2D(orientations[indice], 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, loadedImage);
+          this._gl.bindTexture(this._gl.TEXTURE_CUBE_MAP, null);
+        }
+      })(i, image);
+      
+      image.onerror = ((indice) => {
+        return (error) => {
+          console.warn('Cannot load texture located at ' + urls[indice]);
+        }
+      })(i);
+    
+      image.src = urls[i];
+      images.push(image);
+    }
+    
+    this._textures.push()
+    
+    return texture;
   }
   
   createTexture (url, onLoaded, force) {

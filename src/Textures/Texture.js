@@ -8,6 +8,7 @@ export default class Texture {
     this._image = image;
     this._isCanvas = image instanceof HTMLCanvasElement;
     this._isRenderTarget = false;
+    this._isCube = false;
   }
   
   clone (onCloned) {
@@ -40,5 +41,9 @@ export default class Texture {
   
   get isRenderTarget () {
     return this._isRenderTarget;
+  }
+  
+  get isCube () {
+    return this._isCube;
   }
 }

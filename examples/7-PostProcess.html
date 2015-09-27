@@ -56,7 +56,8 @@
         plane.materials[0].addTexture(renderer.createTexture("floor_bump.png"));
         
         cube.materials[0].backFaceCulling = false;
-        cube.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
+        cube.materials[0].addTexture(renderer.createTexture("bath.jpg"));
+        cube.materials[0].addTexture(renderer.createTexture("bath_normal.jpg"));
         
 		// Shadows
         scene.shadowsHandler = new Pompei.ShadowsHandler(device);

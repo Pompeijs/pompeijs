@@ -4,12 +4,14 @@ precision highp float;
 
 uniform sampler2D u_diffuse;
 uniform sampler2D u_normal;
+uniform samplerCube u_reflection;
 
 uniform mat4 u_world;
 uniform vec3 u_cameraPosition;
 uniform vec4 u_ambient;
 uniform float u_specularStrength;
 uniform float u_bumpStrength;
+uniform float u_reflectionStrength;
 
 uniform vec3 u_lightPositions[NUMBER_OF_LIGHTS];
 uniform vec4 u_lightColors[NUMBER_OF_LIGHTS];
@@ -37,6 +39,9 @@ void main () {
     vec3 vPositionW = vec3(u_world * vec4(v_position, 1.0));
     vec3 vNormalW = normalize(vec3(u_world * vec4(v_normal, 0.0)));
     vec3 viewDirectionW = normalize(u_cameraPosition - vPositionW);
+    
+    vec4 reflectionColor = textureCube(u_reflection, viewDirectionW);
+    baseColor += reflectionColor * u_reflectionStrength;
     
     for (int i=0; i < NUMBER_OF_LIGHTS; i++) {
         vec3 lightVectorW = normalize(u_lightPositions[i] - vPositionW);

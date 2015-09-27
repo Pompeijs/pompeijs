@@ -17,9 +17,9 @@ export default class StandardMaterial extends ShaderMaterial {
       ["a_position", "a_normal", "a_uv"],
       // Uniforms
       ["u_worldViewProjection", "u_world", "u_cameraPosition", "u_lightPositions",
-      "u_lightColors", "u_normal", "u_diffuse", "u_lightSpecularPowers",
+      "u_lightColors", "u_normal", "u_diffuse", "u_reflection", "u_lightSpecularPowers",
       "u_lightIntensities", "u_specularStrength", "u_ambient",
-      "u_bumpStrength"],
+      "u_bumpStrength", "u_reflectionStrength"],
       // Defines
       ["NUMBER_OF_LIGHTS 1"],
       false
@@ -33,6 +33,7 @@ export default class StandardMaterial extends ShaderMaterial {
     // Public members
     this.bumpStrength = 1;
     this.specularStrength = 1;
+    this.reflectionStrength = 1;
   }
   
   onPreRender (renderer) {
@@ -53,6 +54,7 @@ export default class StandardMaterial extends ShaderMaterial {
     // Textures
     service.setInt("u_diffuse", 0);
     service.setInt("u_normal" , 1);
+    service.setInt("u_reflection", 2);
     
     // Lights
     let positions = [];
@@ -82,5 +84,6 @@ export default class StandardMaterial extends ShaderMaterial {
     service.setFloat("u_specularStrength", this.specularStrength);
     service.setColor4("u_ambient", this._scene.ambientColor);
     service.setFloat("u_bumpStrength", this.bumpStrength);
+    service.setFloat("u_reflectionStrength", this.reflectionStrength);
   }
 }

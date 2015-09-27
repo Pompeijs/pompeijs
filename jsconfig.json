@@ -48,6 +48,7 @@
 		
 		"src/Textures/Texture.js",
 		"src/Textures/RenderTargetTexture.js",
+		"src/Textures/CubeTexture.js",
 		
 		"src/PostProcess/ScreenQuad.js",
 		"src/PostProcess/PostProcess.js",
