@@ -11,7 +11,7 @@ varying vec4 v_mVar;
 #ifdef VSM
 float testShadow(vec2 texCoords, vec2 offset, float RealDist)
 {
-	vec4 shadTexCol = texture2D(ShadowMapSampler, texCoords + offset);
+	vec4 shadTexCol = texture2D(u_shadowMapSampler, texCoords + offset);
 
 	float lit_factor = (RealDist <= shadTexCol.x) ? 1.0 : 0.0;
 
@@ -90,6 +90,6 @@ void main()
 	{
 		finalCol = u_lightColor * MVar.y;
 	}
-	gl_FragColor = finalCol + texture2D(u_shadowMapSampler, vec2(0.0, 0.0)) * 0.00001;
+	gl_FragColor = finalCol;
 	#endif
 }

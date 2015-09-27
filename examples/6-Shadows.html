@@ -33,41 +33,38 @@
         var scene = device.scene;
         var renderer = device.renderer;
         
+        var standardMaterial = new Pompei.StandardMaterial(scene);
+        standardMaterial.bumpStrength = 3;
+        standardMaterial.specularStrength = 1;
+        
         var camera = new Pompei.CameraSceneNode("camera", scene, null);
         camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
         
-        var material = new Pompei.StandardMaterial(scene);
-        material.bumpStrength = 30;
-        material.specularStrength = 0.7;
-        
         var light = new Pompei.SpotLightSceneNode("light", scene, null, 1024);
         light.position.setXYZ(-5, 5, 5);
-        light.farValue = 40;
-        light.intensity = 1.3;
         light.specularPower = 0.7;
+        light.roundedSpotLight = true;
+        
+        var cube = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createCubeMesh(1));
+        cube.position.y = 1.5;
         
         var plane = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createPlaneMesh(30, 20));
-        plane.materials[0].shaderMaterial = material;
+        
+        plane.materials[0].backFaceCulling = false;
+        plane.materials[0].shaderMaterial = standardMaterial;
         plane.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
         plane.materials[0].addTexture(renderer.createTexture("floor_bump.png"));
-        
-        var clearColor = new Pompei.Color(0.0, 0.0, 0.0, 1.0);
+        cube.materials[0] = plane.materials[0];
         
         scene.shadowsHandler = new Pompei.ShadowsHandler(device);
         scene.ambientColor.set([0.2, 0.2, 0.2, 1.0]);
-		
-		var loader = scene.loader;
-		loader.load("Duck/", "duck.gltf", function() {
-            var nodes = [];
-            scene.getSceneNodesFromType(Pompei.Scene.SceneNodeType.MESH_SCENE_NODE, null, nodes);
-            
-            for (var i=0; i < nodes.length; i++) {
-                scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.BOTH);
-                for (var j=0; j < nodes[i].materials.length; j++) {
-                    nodes[i].materials[j].backFaceCulling = false;
-                }
-            }
-        });
+        
+        scene.shadowsHandler.addShadowsToNode(cube, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+        scene.shadowsHandler.addShadowsToNode(plane, Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+        
+        device.onPreUpdate = function () {
+            cube.rotation.y += 1;
+        };
         
         device.update();
         

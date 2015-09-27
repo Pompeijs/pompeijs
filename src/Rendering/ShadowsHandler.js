@@ -18,6 +18,7 @@ import depthPixel from '../Shaders/Depth.fragment.glsl';
 import shadowPassVertex from '../Shaders/ShadowPass.vertex.glsl';
 import shadowPassPixel from '../Shaders/ShadowPass.fragment.glsl';
 import lightModulatePixel from '../Shaders/LightModulate.fragment.glsl';
+import vsmBlurPixel from '../Shaders/VSMBlur.fragment.glsl';
 
 class ShadowedNode {
   constructor (node, type, filterType) {
@@ -92,8 +93,19 @@ export default class ShadowsHandler {
       ["a_position"], ["u_worldViewProjection", "u_maxD"], ["ALPHA"], false);
     this._depthMaterialAlpha.compile();
     
+    // VSM
+    this._vsmH = new PostProcess("shadows_handler_vsm_h", device.scene, null, vsmBlurPixel, ["u_screenX", "u_screenY"], [], false);
+    this._vsmH.compile();
+    
+    this._vsmV = new PostProcess("shadows_handler_vsm_v", device.scene, null, vsmBlurPixel, ["u_screenX", "u_screenY"], ["VERTICAL_VSM_BLUR"], false);
+    this._vsmV.compile();
+    
+    this._vsmH.customCallback = this._vsmV.customCallback = this._vsmBlurCallback();
+    
     // Shadows materials
     this._shadowMaterials = [];
+    this._shadowMaterialsSpotLight = [];
+    
     const sampleCounts = [1, 4, 8, 12, 16];
     
     for (let i=0; i < ShadowsHandler.FilterType.EFT_COUNT; i++) {
@@ -102,12 +114,26 @@ export default class ShadowsHandler {
         // Attributes
         ["a_position", "a_normal"],
         // Uniforms
-        ["u_worldViewProjection", "u_worldViewProjection2", "u_maxD", "u_mapRes", "u_lightPos", "u_shadowMapSampler", "u_lightColor"],
+        ["u_worldViewProjection", "u_worldViewProjection2", "u_maxD", "u_mapRes", "u_lightPos",
+        "u_shadowMapSampler", "u_lightColor", "u_ambientColor"],
         // Defines
-        ["SAMPLE_AMOUNT " + sampleCounts[i]], false);
+        ["SAMPLE_AMOUNT " + sampleCounts[i], "VSM"], false);
       shadowsMaterial.compile();
       shadowsMaterial.customCallback = this._shadowPassCallback();
       this._shadowMaterials.push(shadowsMaterial);
+      
+      // Rounded spotlights
+      shadowsMaterial = new ShaderMaterial(this._renderer, shadowPassVertex, shadowPassPixel,
+        // Attributes
+        ["a_position", "a_normal"],
+        // Uniforms
+        ["u_worldViewProjection", "u_worldViewProjection2", "u_maxD", "u_mapRes", "u_lightPos",
+        "u_shadowMapSampler", "u_lightColor", "u_ambientColor"],
+        // Defines
+        ["SAMPLE_AMOUNT " + sampleCounts[i], "ROUND_SPOTLIGHTS", "VSM"], false);
+      shadowsMaterial.compile();
+      shadowsMaterial.customCallback = this._shadowPassCallback();
+      this._shadowMaterialsSpotLight.push(shadowsMaterial);
     }
   }
   
@@ -119,11 +145,14 @@ export default class ShadowsHandler {
    * @param {Scene} scene
    */
   update (scene) {
+    // Animate camera
+    scene.activeCamera.render();
+    
     // Render depth maps
     let spots = [];
     scene.getSceneNodesFromType(Scene.SceneNodeType.SPOT_LIGHT_SCENE_NODE, null, spots);
     
-    this._renderer.setRenderTarget(this._colorRTT, this._clearColor, true, true);
+    this._renderer.setRenderTarget(this._colorRTT, scene.ambientColor, true, true);
     
     for (let i=0; i < spots.length; i++) {
       this._tempSpotLight = spots[i];
@@ -155,6 +184,18 @@ export default class ShadowsHandler {
         for (let m=0; m < node.materials.length; m++) {
           node.materials[m].shaderMaterial = savedMaterials[m];
         }
+        
+        if (spots[i].vsmShadows) {
+          this._renderer.setRenderTarget(spots[i].vsmShadowMap, this._clearColor, true, true);
+          this._screenQuad.material.textures[0] = spots[i].shadowMap;
+          this._screenQuad.material.shaderMaterial = this._vsmH;
+          this._screenQuad.render();
+          
+          this._renderer.setRenderTarget(spots[i].shadowMap, this._clearColor, true, true);
+          this._screenQuad.material.textures[0] = spots[i].vsmShadowMap;
+          this._screenQuad.material.shaderMaterial = this._vsmV;
+          this._screenQuad.render();
+        }
       }
       
       // Render shadows
@@ -173,12 +214,13 @@ export default class ShadowsHandler {
         
         let savedMaterials = [];
         let savedTextures = [];
+        let material = spots[i].roundedSpotLight ? this._shadowMaterialsSpotLight[filterType] : this._shadowMaterials[filterType];
         
         for (let m=0; m < node.materials.length; m++) {
           savedMaterials.push(node.materials[m].shaderMaterial);
           savedTextures.push(node.materials[m].textures[0]);
           
-          node.materials[m].shaderMaterial = this._shadowMaterials[filterType];
+          node.materials[m].shaderMaterial = material;
           node.materials[m].textures[0] = spots[i].shadowMap;
         }
         
@@ -266,6 +308,13 @@ export default class ShadowsHandler {
   _createRenderTargets () {
     this._screenRTT = this._renderer.createRenderTarget("screenRTT", new Dimension2(this._device.canvas.width, this._device.canvas.height), true);
     this._colorRTT = this._renderer.createRenderTarget("colorRTT", new Dimension2(this._device.canvas.width, this._device.canvas.height), true);
+  }
+  
+  _vsmBlurCallback () {
+    return (renderer, service) => {
+      service.setFloat("u_screenX", this._device.canvas.width);
+      service.setFloat("u_screenY", this._device.canvas.height);
+    };
   }
   
   _depthCallback () {

@@ -29,10 +29,19 @@ export default class SpotLightSceneNode extends LightSceneNode {
 		this._tempMatrix = new Matrix();
 		
 		this._shadowMap = this._renderer.createRenderTarget("ShadowLight" + name, new Dimension2(shadowMapSize, shadowMapSize), true, true);
+		this._vsmShadowMap = this._renderer.createRenderTarget("ShadowLightVSM" + name, new Dimension2(shadowMapSize, shadowMapSize), true, true);
+		
+		// Public members
+		this.roundedSpotLight = false;
+		this.vsmShadows = false;
 	}
 	
 	get shadowMap () {
 		return this._shadowMap;
+	}
+	
+	get vsmShadowMap () {
+		return this._vsmShadowMap;
 	}
 	
 	get shadowMapSize () {

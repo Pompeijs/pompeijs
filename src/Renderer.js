@@ -291,8 +291,9 @@ export default class Renderer {
     // Blend func
     let src = this._getBlendFactor(renderTarget.blendFuncSrc);
     let dst = this._getBlendFactor(renderTarget.blendFuncDest);
-    
     this._gl.blendFunc(src, dst);
+    
+     //this._gl.blendFuncSeparate(this._gl.SRC_ALPHA, this._gl.ONE_MINUS_SRC_ALPHA, this._gl.ZERO, this._gl.ONE);
     
     // Set current render target
     this._currentRenderTarget = renderTarget || null;
@@ -634,6 +635,11 @@ export default class Renderer {
       case RenderTargetTexture.BlendFactor.ONE_MINUS_SRC_ALPHA: result = this._gl.ONE_MINUS_SRC_ALPHA; break;
       case RenderTargetTexture.BlendFactor.SRC_COLOR: result = this._gl.SRC_COLOR; break;
       case RenderTargetTexture.BlendFactor.DST_COLOR: result = this._gl.DST_COLOR; break;
+      case RenderTargetTexture.BlendFactor.ONE_MINUS_SRC_COLOR: result = this._gl.ONE_MINUS_SRC_COLOR; break;
+      case RenderTargetTexture.BlendFactor.ONE_MINUS_DST_ALPHA: result = this._gl.ONE_MINUS_DST_ALPHA; break;
+      case RenderTargetTexture.BlendFactor.SRC_ALPHA: result = this._gl.SRC_ALPHA; break;
+      case RenderTargetTexture.BlendFactor.DST_ALPHA: result = this._gl.DST_ALPHA; break;
+      case RenderTargetTexture.BlendFactor.SRC_ALPHA_SATURATE: result = this._gl.SRC_ALPHA_SATURATE; break;
       default: break;
     }
     

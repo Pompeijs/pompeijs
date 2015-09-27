@@ -9,9 +9,12 @@ export default class RenderTargetTexture extends Texture {
       DST_COLOR: 2,
       ONE_MINUS_DST_COLOR: 3,
       SRC_COLOR: 4,
-      SRC_ALPHA: 5,
-      //...
-      ONE_MINUS_SRC_ALPHA: 6
+      ONE_MINUS_SRC_COLOR: 5,
+      SRC_ALPHA: 6,
+      ONE_MINUS_SRC_ALPHA: 7,
+      DST_ALPHA: 8,
+      ONE_MINUS_DST_ALPHA: 8,
+      SRC_ALPHA_SATURATE: 9
     };
   }
   
@@ -22,8 +25,8 @@ export default class RenderTargetTexture extends Texture {
     this._frameBuffer = framebuffer;
     this._depthBuffer = depthbuffer;
     
-    this._blendFuncSrc = RenderTargetTexture.BlendFactor.SRC_COLOR;
-    this._blendFuncDest = RenderTargetTexture.BlendFactor.DST_COLOR;
+    this._blendFuncSrc = RenderTargetTexture.BlendFactor.ONE;
+    this._blendFuncDest = RenderTargetTexture.BlendFactor.ONE_MINUS_SRC_ALPHA;
   }
   
   clone (onCloned) {

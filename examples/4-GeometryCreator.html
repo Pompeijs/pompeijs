@@ -34,7 +34,8 @@
         var renderer = device.renderer;
         
         var standardMaterial = new Pompei.StandardMaterial(scene);
-        standardMaterial.bumpStrength = 4;
+        standardMaterial.bumpStrength = 30;
+        standardMaterial.specularStrength = 0.5;
         
         var camera = new Pompei.CameraSceneNode("camera", scene, null);
         camera.position.set([10, 10, 10]);
@@ -42,8 +43,8 @@
         
         var light = new Pompei.LightSceneNode("light", scene, null);
         light.position.set([10, 10, 10]);
-        light.diffuseColor.set([1, 0, 0, 1]);
-        light.specularPower = 32;
+        light.diffuseColor.set([1, 1, 1, 1]);
+        light.specularPower = 0.7;
         light.intensity = 1;
         
         var cube = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createCubeMesh(1));
@@ -62,16 +63,7 @@
         plane.materials[0].addTexture(renderer.createTexture("floor_specular.png"));
         cube.materials[0] = plane.materials[0];
         
-        plane.materials[0].textures[0];
-        
-        function update() {
-            window.requestAnimationFrame(update);
-            
-            renderer.begin(clearColor, true, true);
-            scene.drawAll();
-            renderer.end();
-        };
-        update();
+        device.update();
         
     </script>
 </body>
