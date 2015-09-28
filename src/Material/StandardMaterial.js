@@ -3,6 +3,7 @@ import { PompeiError } from '../utils/errors';
 import Renderer from '../Renderer';
 import ShaderMaterial from './ShaderMaterial';
 
+import Matrix from '../Core/Matrix';
 import Color from '../Core/Color';
 
 import vertexShader from '../Shaders/Standard.vertex.glsl';
@@ -71,7 +72,7 @@ export default class StandardMaterial extends ShaderMaterial {
       intensities.push(light.intensity);
     }
     
-    service.setMatrix("u_world", renderer.worldMatrix);
+    service.setMatrix("u_world", Matrix.TempMatrix.set(renderer.worldMatrix).inverse());
     service.setVector3("u_cameraPosition", this._scene.activeCamera.position);
     
     if (this._scene.lights.length > 0) {

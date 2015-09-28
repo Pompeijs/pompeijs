@@ -16,14 +16,16 @@ export default class Material {
   }
   
   constructor (other) {
+    this._textures = [];
+    
+    // Public members
     this.shaderMaterial = null;
     this.backFaceCulling = true;
+    this.frontFaceCulling = false;
     this.shininess = 1;
     this.zBuffer = true;
     this.zWrite = true;
     this.blendOperation = Material.BlendOperation.NONE;
-    
-    this._textures = [];
   }
   
   addTexture (texture) {

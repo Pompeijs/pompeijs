@@ -111,7 +111,7 @@ let createMeshes = (gltfRuntime, device) => {
     let mesh = new Mesh(vertexBuffers, device.scene);
     mesh.id = meshKey;
     mesh.name = gltfMesh.name;
-    mesh.finish();
+    device.scene.geometryCreator.invertFaces(mesh, false);
     meshes.push(mesh);
   }
 };

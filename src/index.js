@@ -45,6 +45,7 @@ import RenderTargetTexture from './Textures/RenderTargetTexture';
 
 import Loader from './Loaders/Loader';
 import GlTFFileLoader from './Loaders/glTF/GlTFFileLoader';
+import BabylonFileLoader from './Loaders/Babylon/BabylonFileLoader';
 
 import { PompeiError, WebGLSupportError } from './utils/errors';
 
@@ -97,6 +98,7 @@ export default {
   
   Loader,
   GlTFFileLoader,
+  BabylonFileLoader,
 
   PompeiError,
   WebGLSupportError

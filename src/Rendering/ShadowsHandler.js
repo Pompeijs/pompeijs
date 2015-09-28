@@ -19,6 +19,8 @@ import shadowPassVertex from '../Shaders/ShadowPass.vertex.glsl';
 import shadowPassPixel from '../Shaders/ShadowPass.fragment.glsl';
 import lightModulatePixel from '../Shaders/LightModulate.fragment.glsl';
 import vsmBlurPixel from '../Shaders/VSMBlur.fragment.glsl';
+import whiteWashVertex from '../Shaders/WhiteWash.vertex.glsl';
+import whiteWashPixel from '../Shaders/WhiteWash.fragment.glsl';
 
 class ShadowedNode {
   constructor (node, type, filterType) {
@@ -135,6 +137,12 @@ export default class ShadowsHandler {
       shadowsMaterial.customCallback = this._shadowPassCallback();
       this._shadowMaterialsSpotLight.push(shadowsMaterial);
     }
+    
+    // Cast and excluded material
+    this._whiteWash = new ShaderMaterial(this._renderer, whiteWashVertex, whiteWashPixel,
+      ["a_position", "a_uv"], ["u_worldViewProjection", "u_colorMapSampler"], [], false);
+    this._whiteWash.compile();
+    this._whiteWash.customCallback = this._whiteWashCallback();
   }
   
   resize () {
@@ -246,11 +254,21 @@ export default class ShadowsHandler {
       let node = this._shadowedNodes[n].node;
       let type = this._shadowedNodes[n].type;
       
-      if (type !== ShadowsHandler.ShadowMode.CAST || type !== ShadowsHandler.ShadowMode.EXCLUDE) {
+      if (type !== ShadowsHandler.ShadowMode.CAST && type !== ShadowsHandler.ShadowMode.EXCLUDE) {
         continue;
       }
       
+      let savedMaterials = [];
+      for (let m=0; m < node.materials.length; m++) {
+        savedMaterials.push(node.materials[m].shaderMaterial);
+        node.materials[m].shaderMaterial = this._whiteWash;
+      }
+      
       node.render();
+      
+      for (let m=0; m < node.materials.length; m++) {
+        node.materials[m].shaderMaterial = savedMaterials[m];
+      }
     }
     
     // Render screen rtt
@@ -324,6 +342,12 @@ export default class ShadowsHandler {
     return (renderer, service) => {
       service.setFloat("u_maxD", this._tempSpotLight.farValue);
     }
+  }
+  
+  _whiteWashCallback () {
+    return (renderer, service) => {
+      service.setInt("u_colorMapSampler", 0);
+    };
   }
   
   _shadowPassCallback () {

@@ -48,6 +48,12 @@ export class Vector3 {
   clone () {
     return new Vector3(this.x, this.y, this.z);
   }
+  
+  invert () {
+    this.x *= -1;
+    this.y *= -1;
+    this.z *= -1;
+  }
 
   plus (other) {
     this.x += other.x;

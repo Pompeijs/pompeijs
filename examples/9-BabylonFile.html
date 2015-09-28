@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Pompei.js Cube Example (custom mesh)</title>
+    <!-- Pompei.js -->
+    <script src="../dist/Pompei.js"></script>
+	
+    <style>
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+	
+    <script>
+	    var canvas = document.getElementById('renderCanvas');
+		
+	    var device = new Pompei.Device(canvas);
+        var scene = device.scene;
+        var renderer = device.renderer;
+        
+        var camera = new Pompei.CameraSceneNode("camera", scene, null);
+        camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
+        
+        var light = new Pompei.LightSceneNode("light", scene, null);
+        light.position.setXYZ(30, 30, 30);
+        light.specularPower = 0.7;
+        
+		var loader = scene.loader;
+		loader.load("Viper/", "Viper.babylon", function() {
+            var nodes = [];
+            scene.getSceneNodesFromType(Pompei.Scene.SceneNodeType.MESH_SCENE_NODE, null, nodes);
+            
+            for (var i=0; i < nodes.length; i++) {
+                for (var j=0; j < nodes[i].materials.length; j++) {
+                    nodes[i].materials[j].textures[1] = renderer.createTexture("floor_bump.png");
+                    nodes[i].materials[j].shaderMaterial.bumpStrength = 30;
+                }
+            }
+        });
+        
+        device.update();
+        
+    </script>
+</body>
+</html>

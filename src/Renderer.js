@@ -30,6 +30,8 @@ export default class Renderer {
     this._gl.clearDepth(1.0);
     this._gl.enable(this._gl.DEPTH_TEST);
     this._gl.depthFunc(this._gl.LEQUAL);
+    this._gl.frontFace(this._gl.CW);
+
 
     options = options || {};
     
@@ -238,13 +240,22 @@ export default class Renderer {
     }
     
     // Configure
-    if (this._currentMaterial.backFaceCulling) {
+    if (this._currentMaterial.backFaceCulling || this._currentMaterial.frontFaceCulling) {
       this._gl.enable(this._gl.CULL_FACE);
     }
     else {
       this._gl.disable(this._gl.CULL_FACE);
     }
-    this._gl.cullFace(this._currentMaterial.backFaceCulling ? this._gl.BACK : this._gl.FRONT);
+    
+    if (this._currentMaterial.backFaceCulling && this._currentMaterial.frontFaceCulling) {
+      this._gl.cullFace(this._gl.FRONT_AND_BACK);
+    }
+    else if (this._currentMaterial.backFaceCulling) {
+      this._gl.cullFace(this._gl.FRONT);
+    }
+    else if (this._currentMaterial.frontFaceCulling) {
+      this._gl.cullFace(this._gl.BACK);
+    }
     
     this._gl.depthMask(this._currentMaterial.zWrite);
     

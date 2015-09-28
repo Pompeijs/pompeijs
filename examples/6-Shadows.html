@@ -34,8 +34,8 @@
         var renderer = device.renderer;
         
         var standardMaterial = new Pompei.StandardMaterial(scene);
-        standardMaterial.bumpStrength = 30;
-        standardMaterial.specularStrength = 1;
+        standardMaterial.bumpStrength = 4;
+        standardMaterial.specularStrength = 0.7;
         
         var camera = new Pompei.CameraSceneNode("camera", scene, null);
         camera.addAnimator(new Pompei.RotationCameraAnimator(scene, camera));
@@ -43,6 +43,7 @@
         var light = new Pompei.SpotLightSceneNode("light", scene, null, 1024);
         light.position.setXYZ(-5, 5, 5);
         light.specularPower = 0.7;
+        light.intensity = 1;
         light.roundedSpotLight = true;
         
         var cube = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createCubeMesh(1));
@@ -50,13 +51,11 @@
         
         var plane = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createPlaneMesh(30, 20));
         
-        plane.materials[0].backFaceCulling = false;
         plane.materials[0].shaderMaterial = standardMaterial;
         plane.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
         plane.materials[0].addTexture(renderer.createTexture("floor_bump.png"));
         
-        cube.materials[0].backFaceCulling = false;
-        cube.materials[0].addTexture(renderer.createTexture("floor_diffuse.png"));
+        cube.materials[0].addTexture(renderer.createTexture("bath.jpg"));
         
         scene.shadowsHandler = new Pompei.ShadowsHandler(device);
         scene.ambientColor.set([0.2, 0.2, 0.2, 1.0]);

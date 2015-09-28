@@ -43,7 +43,6 @@
         var light = new Pompei.SpotLightSceneNode("light", scene, null, 1024);
         light.position.setXYZ(-5, 5, 5);
         light.farValue = 40;
-        light.intensity = 1.3;
         light.specularPower = 0.7;
         
         var plane = new Pompei.MeshSceneNode("cube", scene, null, scene.geometryCreator.createPlaneMesh(30, 20));
@@ -62,9 +61,11 @@
             scene.getSceneNodesFromType(Pompei.Scene.SceneNodeType.MESH_SCENE_NODE, null, nodes);
             
             for (var i=0; i < nodes.length; i++) {
-                scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
-                for (var j=0; j < nodes[i].materials.length; j++) {
-                    nodes[i].materials[j].backFaceCulling = false;
+                if (nodes[i] !== plane) {
+                    scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.CAST, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
+                }
+                else {
+                    scene.shadowsHandler.addShadowsToNode(nodes[i], Pompei.ShadowsHandler.ShadowMode.BOTH, Pompei.ShadowsHandler.FilterType.EFT_16PCF);
                 }
             }
         });
