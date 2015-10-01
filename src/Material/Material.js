@@ -28,8 +28,20 @@ export default class Material {
     this.blendOperation = Material.BlendOperation.NONE;
   }
   
+  setUsedTextures (count) {
+    if (count < 0) {
+      throw new PompeiError('Bad argument. count must be > 0. setUsedTextures (count)');
+    }
+    
+    this._textures = [];
+    for (let i=0; i < count; i++) {
+      this._textures.push(null);
+    }
+  }
+  
   addTexture (texture) {
     this._textures.push(texture);
+    return this._textures.length - 1;
   }
   
   setTexture (indice, texture) {

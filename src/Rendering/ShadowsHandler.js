@@ -275,7 +275,7 @@ export default class ShadowsHandler {
     this._renderer.setRenderTarget(this._screenRTT, scene.clearColor, true, true);
     scene.drawAll();
     
-    // Render screenquad
+    // Render modulate (sceneColor * shadowsColor)
     this._renderer.setRenderTarget(output, scene.clearColor, true, true);
     this._screenQuad.material.textures[0] = this._screenRTT;
     this._screenQuad.material.textures[1] = this._colorRTT;
@@ -301,7 +301,7 @@ export default class ShadowsHandler {
     let index = this._findNode(node);
     
     if (index !== -1) {
-      this._shadowedNodes[index].type = type;
+      this._shadowedNodes[index].type = type || this._shadowedNodes[index].type;
       this._shadowedNodes[index].filterType = filterType || this._shadowedNodes[index].filterType;
     }
     else {

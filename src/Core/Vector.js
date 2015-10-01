@@ -228,6 +228,13 @@ export class Vector2 {
       this.y = other[1];
     }
   }
+  
+  setXY (x, y) {
+    this.x = x;
+    this.y = y;
+    
+    return this;
+  }
 
   plus (other) {
     this.x += other.x;

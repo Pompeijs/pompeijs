@@ -47,9 +47,11 @@ export default class Renderer {
     this._materialRenderer = new MaterialRenderer(this._gl);
     
     this._defaultMaterial = new Material();
+    this._defaultMaterial.setUsedTextures(1);
     this._defaultMaterial.shaderMaterial = new SolidMaterial(this);
-    this._currentMaterial = null;
     
+    this._currentVertexBuffer = null;
+    this._currentMaterial = null;
     this._currentRenderTarget = null;
     
     this._fps = 0;
@@ -90,17 +92,6 @@ export default class Renderer {
     }
     
     this.setRenderTarget(null, clearColor, clearBackBuffer, clearDepthBuffer);
-    /*
-    this._gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    
-    if (clearDepthBuffer) {
-      this._gl.clear(this._gl.DEPTH_BUFFER_BIT);
-    }
-
-    if (clearBackBuffer) {
-      this._gl.clear(this._gl.COLOR_BUFFER_BIT);
-    }
-    */
   }
 
   end () {
@@ -121,6 +112,8 @@ export default class Renderer {
   }
 
   drawBuffer (vertexBuffer) {
+    this._currentVertexBuffer = vertexBuffer;
+    
     // Bind attributes
     let shaderMaterial = this._materialRenderer._currentShaderMaterial;
     let program = shaderMaterial.program;
@@ -614,6 +607,9 @@ export default class Renderer {
     if (!vertexBuffer.a_uv && vertexBuffer.uvs.length > 0) {
       vertexBuffer._uvBuffer = onBindBuffer(vertexBuffer.uvs, this._gl.ARRAY_BUFFER);
     }
+    if (!vertexBuffer.a_uv2 && vertexBuffer.uvs2.length > 0) {
+      vertexBuffer._uv2Buffer = onBindBuffer(vertexBuffer.uvs2, this._gl.ARRAY_BUFFER);
+    }
     if (!vertexBuffer.a_color && vertexBuffer.colors.length > 0) {
       vertexBuffer._colorBuffer = onBindBuffer(vertexBuffer.colors, this._gl.ARRAY_BUFFER);
     }
@@ -678,6 +674,10 @@ export default class Renderer {
   // Rendering
   get currentRenderTarget () {
     return this._currentRenderTarget;
+  }
+  
+  get currentVertexBuffer () {
+    return this._currentVertexBuffer;
   }
   
   // Programs

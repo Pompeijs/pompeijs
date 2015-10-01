@@ -60,8 +60,9 @@
 		"src/Loaders/Loader.js",
 		"src/Loaders/Tokenizer.js",
 		"src/Loaders/glTF/GlTFFileLoader.js",
-		"src/Loaders/glTF/GlTFShadersSupport.js",
-		"src/Loaders/glTF/GlTFMaterial.js",
-		"src/Loaders/Babylon/BabylonFileLoader.js"
+		
+		"src/Loaders/Babylon/BabylonFileLoader.js",
+		"src/Loaders/Babylon/BabylonMaterial.js",
+		"src/Loaders/Babylon/BabylonShaderMaterial.js"
 	]
 }

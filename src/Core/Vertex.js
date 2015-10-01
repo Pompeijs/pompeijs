@@ -5,7 +5,7 @@ import { Vector2 } from './Vector';
 import Color from './Color';
 
 export default class Vertex {
-  constructor(position, normal, uv, color) {
+  constructor(position, normal, uv, color, uv2) {
     if (position && !(position instanceof Vector3)) {
       throw new PompeiError('Bad Parameter: position is not a Vector3. constructor(position, normal, uv, color)');
     }
@@ -18,6 +18,10 @@ export default class Vertex {
       throw new PompeiError('Bad Parameter: uv is not a Vector2. constructor(position, normal, uv, color)');
     }
     
+    if (uv2 && !(uv2 instanceof Vector2)) {
+      throw new PompeiError('Bad Parameter: uv2 is not a Vector2. constructor(position, normal, uv, color)');
+    }
+    
     if (color && !(color instanceof Color)) {
       throw new PompeiError('Bad Parameter: color is not a Color. constructor(position, normal, uv, color)');
     }
@@ -25,6 +29,7 @@ export default class Vertex {
     this._position = position;
     this._normal = normal;
     this._uv = uv;
+    this._uv2 = uv2;
     this._color = color;
   }
   
@@ -65,11 +70,15 @@ export default class Vertex {
   }
 
   set uv (uv) {
-    if (!(uv instanceof Vector2)) {
-      throw new PompeiError('Bad Parameter: uv is not a Vector2. set uv (uv)');
-    }
-
     this._uv = uv;
+  }
+  
+  get uv2 () {
+    return this._uv2;
+  }
+  
+  set uv2 (uv2) {
+    this._uv = uv2;
   }
   
   // Color

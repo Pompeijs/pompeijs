@@ -37,6 +37,7 @@ export default class ShaderMaterial {
     
     this._program = null;
     this._uniformsLocations = { };
+    this._compiledPrograms = { };
     
     // Public members
     this.id = '';
@@ -119,9 +120,16 @@ export default class ShaderMaterial {
       defines += '#define ' + this._defines[i] + '\n';
     }
     
-    this._program = this._renderer.createProgram(
-      vertexCode, pixelCode, this._attributes, this._uniforms, defines
-    );
+    if (!this._compiledPrograms[defines]) {
+      this._program = this._renderer.createProgram(
+        vertexCode, pixelCode, this._attributes, this._uniforms, defines
+      );
+      this._compiledPrograms[defines] = this._program;
+    }
+    else {
+      this._program = this._compiledPrograms[defines];
+    }
+    
     this._programReady = true;
   }
 }

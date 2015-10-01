@@ -38,9 +38,7 @@ export default class ScreenQuad {
     this._material = new Material();
     
     texturesCount = texturesCount || 1;
-    for (let i=0; i < texturesCount; i++) {
-      this._material.textures.push(null);
-    }
+    this._material.setUsedTextures(texturesCount);
     
     this._worldMatrix = Matrix.Identity();
   }
