@@ -135,6 +135,11 @@ export default class VertexBuffer {
         this._uvs.push(vertices[i].uv.y);
       }
       
+      if (vertices[i].uv2) {
+        this._uvs2.push(vertices[i].uv2.x);
+        this._uvs2.push(vertices[i].uv2.y);
+      }
+      
       if (vertices[i].colors) {
         this._colors.push(vertices[i].color.r);
         this._colors.push(vertices[i].color.g);
